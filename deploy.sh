@@ -28,7 +28,8 @@ else
 fi
 
 echo "🚀 Starting new process..."
-sudo nohup java -jar "$APP_NAME" \
+# 设置 JVM 时区为东八区，确保应用内时间与数据库一致
+sudo nohup java -Duser.timezone=Asia/Shanghai -jar "$APP_NAME" \
   --spring.profiles.active=prod \
   > app.log 2>&1 &
 

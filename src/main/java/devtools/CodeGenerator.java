@@ -18,10 +18,10 @@ public class CodeGenerator {
         String password = devProps.getProperty("spring.datasource.password");
         String basePackage = LoadProperties.getBasePackage();
 
-        System.out.println("数据库 URL: " + url);
-        System.out.println("数据库 用户名: " + username);
-        System.out.println("数据库 密码: " + password);
-        System.out.println("项目基础包: " + basePackage);
+//        System.out.println("数据库 URL: " + url);
+//        System.out.println("数据库 用户名: " + username);
+//        System.out.println("数据库 密码: " + password);
+//        System.out.println("项目基础包: " + basePackage);
 
         String tableName = "user";
         FastAutoGenerator.create(url, username, password)

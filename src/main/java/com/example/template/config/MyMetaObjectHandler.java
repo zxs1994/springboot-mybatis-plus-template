@@ -4,18 +4,17 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
+    private static final ZoneOffset ZONE_OFFSET = ZoneOffset.ofHours(8);
+
     @Override
     public void insertFill(MetaObject metaObject) {
-        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.ofHours(8));
-//        System.out.println(now);
+        OffsetDateTime now = OffsetDateTime.now(ZONE_OFFSET);
         // 无论是否传值，都覆盖
         this.setFieldValByName("createdAt", now, metaObject);
         this.setFieldValByName("updatedAt", now, metaObject);
@@ -29,7 +28,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.ofHours(8));
+        OffsetDateTime now = OffsetDateTime.now(ZONE_OFFSET);
         // 无论是否传值，都覆盖
         this.setFieldValByName("updatedAt", now, metaObject);
     }
