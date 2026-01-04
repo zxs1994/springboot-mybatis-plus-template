@@ -126,13 +126,13 @@ curl -X GET http://localhost:8088/user
 
 ## MySQL & Spring Boot 时间相关配置说明
 
-| 配置项 | 作用 | 适用类型 / 场景 | 是否对当前项目必需 |
-|--------|------|----------------|----------------|
-| `jackson.time-zone` | 控制 Jackson 序列化/反序列化 JSON 时使用的时区（例如 `Asia/Shanghai`） | `Date`、`Calendar`、`Instant`；不会影响 `OffsetDateTime` / `LocalDateTime` | ❌ 对 `OffsetDateTime` 不必需，只影响 JSON 展示 |
-| `jackson.write-dates-as-timestamps` | 禁止将时间序列化为时间戳，改为 ISO8601 格式 | 所有 Jackson 可序列化的时间类型 | ✅ 推荐保留，用于保证前端可读性 |
-| MySQL `time_zone` | 设置 MySQL Server 默认时区（如 `+08:00`） | `TIMESTAMP`、带 `CURRENT_TIMESTAMP` 默认值的列 | ❌ 对 `DATETIME` 无效，不必需 |
-| JVM `user.timezone` | 设置 JVM 默认时区（如 `Asia/Shanghai`） | `Date`、`Calendar`、`LocalDateTime.now()`、`OffsetDateTime.now()`（不带显式 ZoneOffset 时） | ❌ 对显式 `OffsetDateTime.now(ZoneOffset.ofHours(8))` 不必需 |
-| JDBC `serverTimezone` | 告诉 JDBC 数据库服务端时区，用于 `TIMESTAMP` ↔ Java Date / Calendar / Instant 自动换算 | `TIMESTAMP`、`Date`、`Instant` | ❌ 对 `DATETIME` + `OffsetDateTime` 不必需 |
+| 配置 | 作用 | 适用类型 / 场景 | 是否对当前项目必需 |
+|------|------|----------------|----------------|
+| `spring.jackson.time-zone=Asia/Shanghai` | 控制 Jackson 序列化/反序列化 JSON 时使用的时区 | `java.util.Date`、`java.util.Calendar`、`Instant`；不会影响 `OffsetDateTime` 或 `LocalDateTime` | ❌ 对 `OffsetDateTime` 不必需，只影响 JSON 展示 |
+| `spring.jackson.serialization.write-dates-as-timestamps=false` | 禁止将时间序列化为时间戳，改为 ISO8601 字符串格式 | 所有 Jackson 可序列化的时间类型 (`Date` / `LocalDateTime` / `OffsetDateTime`) | ✅ 推荐保留，用于保证前端可读性 |
+| `SET GLOBAL time_zone = "+08:00"` | 设置 MySQL Server 默认时区 | `TIMESTAMP` 类型、带 `CURRENT_TIMESTAMP` 默认值的列 | ❌ 对 `DATETIME` 无效，不必需 |
+| `-Duser.timezone=Asia/Shanghai` | 设置 JVM 默认时区 | `Date`、`Calendar`、`LocalDateTime.now()`、`OffsetDateTime.now()`（不带显式 ZoneOffset 时） | ❌ 对显式 `OffsetDateTime.now(ZoneOffset.ofHours(8))` 不必需 |
+| `spring.datasource.url=jdbc:mysql://...&serverTimezone=Asia/Shanghai` | 告诉 JDBC 数据库服务端时区，用于 `TIMESTAMP` ↔ Java Date / Calendar / Instant 的自动换算 | `TIMESTAMP`、`Date`、`Instant` | ❌ 对 `DATETIME` + `OffsetDateTime` 不必需 |
 
 ---
 
