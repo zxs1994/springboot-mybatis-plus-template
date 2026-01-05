@@ -12,55 +12,63 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 /**
  * <p>
- * UserController 控制器
+ * 用户表 Controller 控制器
  * </p>
  *
  * @author xusheng
- * @since 2026-01-02 16:00:32
+ * @since 2026-01-04 17:53:21
  */
 
 @RestController
 @RequestMapping("/user")
-@Tag(name = "User", description = "User 控制器")
+@Tag(name = "用户", description = "用户 控制器")
 public class UserController {
 
     @Autowired
     private IUserService userService;
 
     @GetMapping
-    @Operation(summary = "获取所有 User 列表")
+    @Operation(summary = "获取所有 用户 列表")
     public List<User> list() {
         return userService.list();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "根据 ID 获取 User")
+    @Operation(summary = "根据 ID 获取 用户")
     public User get(@PathVariable Long id) {
         return userService.getById(id);
     }
 
     @PostMapping
-    @Operation(summary = "新增 User")
+    @Operation(summary = "新增 用户")
     public boolean save(@RequestBody User user) {
         return userService.save(user);
     }
 
     @PutMapping
-    @Operation(summary = "更新 User")
+    @Operation(summary = "更新 用户")
     public boolean update(@RequestBody User user) {
+        user.setPassword(null);
         return userService.updateById(user);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除 User 根据 ID")
+    @Operation(summary = "删除 用户 根据 ID")
     public boolean delete(@PathVariable Long id) {
         return userService.removeById(id);
     }
 
     @GetMapping("/page")
-    @Operation(summary = "分页获取 User 列表")
+    @Operation(summary = "分页获取 用户 列表")
     public Page<User> page(@RequestParam(defaultValue = "1") long page,
-                                 @RequestParam(defaultValue = "10") long size) {
+                                   @RequestParam(defaultValue = "10") long size) {
         return userService.page(new Page<>(page, size));
     }
+
+    @PostMapping("/register")
+    @Operation(summary = "客户端 新增 用户")
+    public boolean register(@RequestBody User user) {
+        return userService.save(user);
+    }
+
 }

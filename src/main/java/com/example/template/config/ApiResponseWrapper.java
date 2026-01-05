@@ -1,5 +1,6 @@
 package com.example.template.config;
 
+import com.example.template.common.BizException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -78,5 +79,10 @@ public class ApiResponseWrapper implements ResponseBodyAdvice<Object> {
     @ExceptionHandler(NotFoundException.class)
     public ApiResponse<String> handleNotFoundException(NotFoundException ex) {
         return ApiResponse.fail(404, null, ex.getMessage());
+    }
+
+    @ExceptionHandler(BizException.class)
+    public ApiResponse<String> handleBizException(BizException ex) {
+        return ApiResponse.fail(ex.getCode(), null, ex.getMessage());
     }
 }

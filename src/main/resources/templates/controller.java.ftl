@@ -24,13 +24,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 <#if entityComment?ends_with("表")>
     <#assign entityComment = entityComment?substring(0, entityComment?length - 1)>
 </#if>
-<#-- 如果最后一个字是“表”，去掉 -->
-<#if entityComment?ends_with("表")>
-    <#assign entityComment = entityComment?substring(0, entityComment?length - 1)>
-</#if>
 /**
  * <p>
- * ${entity}Controller 控制器
+ * ${table.comment} Controller 控制器
  * </p>
  *
  * @author ${author}

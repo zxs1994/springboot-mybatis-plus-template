@@ -8,7 +8,7 @@ import ${basePackage}.common.BaseEntity;
 
 /**
  * <p>
- * ${entity} 实体
+ * ${table.comment} 实体
  * </p>
  *
  * @author ${author}

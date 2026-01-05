@@ -8,7 +8,7 @@ import com.example.template.common.BaseEntity;
 
 /**
  * <p>
- * 用户表 实体
+ * Permission 实体
  * </p>
  *
  * @author xusheng
@@ -17,17 +17,14 @@ import com.example.template.common.BaseEntity;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("user")
-@Schema(description = "用户表")
-public class User extends BaseEntity {
+@TableName("permission")
+@Schema(description = "权限表")
+public class Permission extends BaseEntity {
 
-    @Schema(description = "")
-    private String email;
-
-    @Schema(description = "用户名")
+    @Schema(description = "权限名")
     private String name;
 
-    @Schema(description = "密码")
-    private String password;
+    @Schema(description = "权限编码")
+    private String code;
 
 }

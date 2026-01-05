@@ -12,8 +12,8 @@ import java.util.Map;
 
 public class EnumUtils {
 
-    public static Map<String, Object> loadAllEnums(String packageName) {
-        Map<String, Object> result = new HashMap<>();
+    public static Map<String, List<Map<String, Object>>> loadAllEnums(String packageName) {
+        Map<String, List<Map<String, Object>>> result = new HashMap<>();
         try {
             // 扫描包下所有类
             ClassPathScanningCandidateComponentProvider provider =

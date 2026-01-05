@@ -41,7 +41,7 @@ public class CodeGenerator {
 //                            .xml("mapper.xml")
                 )
                 .strategyConfig(builder -> builder
-                        .addInclude(tableName)
+                        // .addInclude(tableName)
 
                         .entityBuilder()
                             .entityBuilder()

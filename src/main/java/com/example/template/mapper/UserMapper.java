@@ -5,11 +5,11 @@ import com.example.template.entity.User;
 
 /**
  * <p>
- *  Mapper 接口
+ * 用户表 Mapper 接口
  * </p>
  *
  * @author xusheng
- * @since 2026-01-02
+ * @since 2026-01-04 17:45:42
  */
 public interface UserMapper extends BaseMapper<User> {
 
