@@ -41,12 +41,18 @@ public class OpenApiConfig {
             // 保存标记
             operation.getExtensions().put("noApiWrap", noWrap);
 
-            // 如果标记了 @NoApiWrap，不包装，直接返回
+            // 1️⃣ @NoApiWrap → 不包装
             if (noWrap) {
                 return operation;
             }
 
-            // 只处理 200 响应
+            // 2️⃣ 返回值本身是 ApiResponse → 不包装
+            Class<?> returnType = handlerMethod.getMethod().getReturnType();
+            if (ApiResponse.class.isAssignableFrom(returnType)) {
+                return operation;
+            }
+
+            // 3️⃣ 否则才包装 200
             ApiResponse response200 = operation.getResponses().get("200");
             if (response200 != null && response200.getContent() != null) {
                 response200.getContent().forEach((mediaType, media) -> {
