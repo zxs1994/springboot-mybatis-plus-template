@@ -1,4 +1,4 @@
-package com.example.template;
+package com.github.zxs1994.java_template;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

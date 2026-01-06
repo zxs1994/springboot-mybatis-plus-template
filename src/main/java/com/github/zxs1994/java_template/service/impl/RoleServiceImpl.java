@@ -1,8 +1,8 @@
-package com.example.template.service.impl;
+package com.github.zxs1994.java_template.service.impl;
 
-import com.example.template.entity.Role;
-import com.example.template.mapper.RoleMapper;
-import com.example.template.service.IRoleService;
+import com.github.zxs1994.java_template.entity.Role;
+import com.github.zxs1994.java_template.mapper.RoleMapper;
+import com.github.zxs1994.java_template.service.IRoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 

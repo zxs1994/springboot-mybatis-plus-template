@@ -1,7 +1,7 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
-import com.example.template.common.ApiResponse;
-import com.example.template.util.JwtUtils;
+import com.github.zxs1994.java_template.common.ApiResponse;
+import com.github.zxs1994.java_template.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;

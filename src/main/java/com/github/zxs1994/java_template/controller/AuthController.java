@@ -1,8 +1,8 @@
-package com.example.template.controller;
+package com.github.zxs1994.java_template.controller;
 
-import com.example.template.dto.LoginRequest;
-import com.example.template.dto.LoginResponse;
-import com.example.template.service.IUserService;
+import com.github.zxs1994.java_template.dto.LoginRequest;
+import com.github.zxs1994.java_template.dto.LoginResponse;
+import com.github.zxs1994.java_template.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

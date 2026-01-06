@@ -1,6 +1,6 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
-import com.example.template.common.BizException;
+import com.github.zxs1994.java_template.common.BizException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-import com.example.template.common.ApiResponse;
-import com.example.template.common.NoApiWrap;
+import com.github.zxs1994.java_template.common.ApiResponse;
+import com.github.zxs1994.java_template.common.NoApiWrap;
 
 @RestControllerAdvice
 public class ApiResponseWrapper implements ResponseBodyAdvice<Object> {

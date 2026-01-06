@@ -2,7 +2,7 @@ package devtools;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import com.example.template.util.LoadProperties;
+import com.github.zxs1994.java_template.util.LoadProperties;
 
 import java.io.IOException;
 import java.util.Collections;

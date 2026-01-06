@@ -1,14 +1,14 @@
-package com.example.template.service.impl;
+package com.github.zxs1994.java_template.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.template.common.BizException;
-import com.example.template.dto.LoginRequest;
-import com.example.template.dto.LoginResponse;
-import com.example.template.entity.User;
-import com.example.template.mapper.UserMapper;
-import com.example.template.service.IUserService;
+import com.github.zxs1994.java_template.common.BizException;
+import com.github.zxs1994.java_template.dto.LoginRequest;
+import com.github.zxs1994.java_template.dto.LoginResponse;
+import com.github.zxs1994.java_template.entity.User;
+import com.github.zxs1994.java_template.mapper.UserMapper;
+import com.github.zxs1994.java_template.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.template.util.JwtUtils;
+import com.github.zxs1994.java_template.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

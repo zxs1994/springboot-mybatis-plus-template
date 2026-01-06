@@ -1,4 +1,4 @@
-package com.example.template.common;
+package com.github.zxs1994.java_template.common;
 
 public class ApiResponse<T> {
     private int code;

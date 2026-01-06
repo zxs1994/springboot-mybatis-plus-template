@@ -1,9 +1,9 @@
-package com.example.template.util;
+package com.github.zxs1994.java_template.util;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import com.example.template.common.BaseEnum;
+import com.github.zxs1994.java_template.common.BaseEnum;
 
 import java.util.ArrayList;
 import java.util.HashMap;

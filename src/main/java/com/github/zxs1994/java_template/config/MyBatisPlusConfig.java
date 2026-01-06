@@ -1,4 +1,4 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;

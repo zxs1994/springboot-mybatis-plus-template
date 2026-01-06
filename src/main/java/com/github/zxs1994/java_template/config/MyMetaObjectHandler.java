@@ -1,7 +1,7 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.example.template.util.TimeProvider;
+import com.github.zxs1994.java_template.util.TimeProvider;
 
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;

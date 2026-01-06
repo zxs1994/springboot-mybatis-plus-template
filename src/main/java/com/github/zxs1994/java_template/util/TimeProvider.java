@@ -1,4 +1,4 @@
-package com.example.template.util;
+package com.github.zxs1994.java_template.util;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;

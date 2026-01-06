@@ -1,4 +1,4 @@
-package com.example.template.dto;
+package com.github.zxs1994.java_template.dto;
 
 import lombok.Data;
 

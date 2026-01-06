@@ -1,6 +1,6 @@
-package com.example.template.enums;
+package com.github.zxs1994.java_template.enums;
 
-import com.example.template.common.BaseEnum;
+import com.github.zxs1994.java_template.common.BaseEnum;
 
 public enum BaseStatus implements BaseEnum {
     NODELETE(0, "未删除"),

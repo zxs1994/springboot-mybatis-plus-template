@@ -1,6 +1,6 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
-import com.example.template.util.JwtUtils;
+import com.github.zxs1994.java_template.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.example.template.common;
+package com.github.zxs1994.java_template.common;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;

@@ -1,10 +1,10 @@
-package com.example.template.entity;
+package com.github.zxs1994.java_template.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
-import com.example.template.common.BaseEntity;
+import com.github.zxs1994.java_template.common.BaseEntity;
 
 /**
  * <p>

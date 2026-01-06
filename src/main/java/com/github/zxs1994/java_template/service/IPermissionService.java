@@ -1,6 +1,6 @@
-package com.example.template.service;
+package com.github.zxs1994.java_template.service;
 
-import com.example.template.entity.Permission;
+import com.github.zxs1994.java_template.entity.Permission;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

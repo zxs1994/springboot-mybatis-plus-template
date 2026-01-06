@@ -1,7 +1,7 @@
-package com.example.template.mapper;
+package com.github.zxs1994.java_template.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.template.entity.User;
+import com.github.zxs1994.java_template.entity.User;
 
 /**
  * <p>

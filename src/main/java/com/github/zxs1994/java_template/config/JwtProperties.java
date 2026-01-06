@@ -1,4 +1,4 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

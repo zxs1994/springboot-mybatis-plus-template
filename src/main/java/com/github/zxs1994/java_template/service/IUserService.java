@@ -1,8 +1,8 @@
-package com.example.template.service;
+package com.github.zxs1994.java_template.service;
 
-import com.example.template.dto.LoginRequest;
-import com.example.template.dto.LoginResponse;
-import com.example.template.entity.User;
+import com.github.zxs1994.java_template.dto.LoginRequest;
+import com.github.zxs1994.java_template.dto.LoginResponse;
+import com.github.zxs1994.java_template.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

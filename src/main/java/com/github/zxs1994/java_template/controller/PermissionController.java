@@ -1,7 +1,7 @@
-package com.example.template.controller;
+package com.github.zxs1994.java_template.controller;
 
-import com.example.template.entity.Permission;
-import com.example.template.service.IPermissionService;
+import com.github.zxs1994.java_template.entity.Permission;
+import com.github.zxs1994.java_template.service.IPermissionService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;

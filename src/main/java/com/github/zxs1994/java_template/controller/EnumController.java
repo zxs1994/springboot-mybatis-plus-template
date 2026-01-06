@@ -1,11 +1,11 @@
-package com.example.template.controller;
+package com.github.zxs1994.java_template.controller;
 
-import com.example.template.util.LoadProperties;
+import com.github.zxs1994.java_template.util.LoadProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.template.util.EnumUtils;
+import com.github.zxs1994.java_template.util.EnumUtils;
 
 import java.util.List;
 import java.util.Map;

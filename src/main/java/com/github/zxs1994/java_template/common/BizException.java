@@ -1,4 +1,4 @@
-package com.example.template.common;
+package com.github.zxs1994.java_template.common;
 
 public class BizException extends RuntimeException {
     private final int code; // 自定义业务码

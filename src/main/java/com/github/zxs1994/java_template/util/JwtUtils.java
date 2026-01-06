@@ -1,7 +1,7 @@
-package com.example.template.util;
+package com.github.zxs1994.java_template.util;
 
-import com.example.template.config.JwtProperties;
-import com.example.template.entity.User;
+import com.github.zxs1994.java_template.config.JwtProperties;
+import com.github.zxs1994.java_template.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;

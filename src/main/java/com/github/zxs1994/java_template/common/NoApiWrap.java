@@ -1,4 +1,4 @@
-package com.example.template.common;
+package com.github.zxs1994.java_template.common;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

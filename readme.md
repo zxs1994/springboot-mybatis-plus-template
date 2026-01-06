@@ -1,42 +1,55 @@
-# SpringBoot + MyBatis-Plus 模板项目 📦
+# SpringBoot + MyBatis-Plus 用户管理系统模板 📦
 
 ## 简介 💡
 
-**这是一个基于 Spring Boot + MyBatis-Plus 的轻量模板**，提供常见 CRUD、分页、统一响应封装、枚举工具、以及代码生成器示例。适合用作新项目起步或学习参考。
+**这是一个基于 Spring Boot + MyBatis-Plus 的轻量级用户管理系统模板**，提供常见 CRUD、分页、统一响应封装、枚举工具、JWT 登录鉴权、RBAC 权限管理、以及代码生成器示例。适合新项目起步或学习参考。
 
 ---
 
 ## 主要特性 ✅
 
-- 基于 Spring Boot 3.x（Java 17）  
-- MyBatis-Plus 集成（分页、自动填充）  
-- 统一 API 响应封装（`ApiResponse`），可通过 `@NoApiWrap` 取消包装  
-- 内置简单的代码生成器（`devtools/CodeGenerator` + Freemarker 模板）  
-- Swagger / OpenAPI 文档（springdoc）  
+- 基于 Spring Boot 3.5.5（Java 17）
+- MyBatis-Plus 集成（分页、自动填充、代码生成）
+- JWT 登录鉴权，Spring Security 权限控制（RBAC）
+- 统一 API 响应封装（`ApiResponse`），可用 `@NoApiWrap` 跳过
+- 内置代码生成器（`src/main/java/devtools/CodeGenerator.java` + Freemarker 模板）
+- Swagger / OpenAPI 文档（springdoc）
+- Actuator 健康监控
 
 ---
 
 ## 技术栈 🔧
 
-- Java 17  
-- Spring Boot 3.5.5  
-- MyBatis-Plus  
-- MySQL（示例 SQL 在 `user.sql`）  
-- Freemarker（代码生成模板位于 `src/main/resources/templates`）  
-- OpenAPI (springdoc) for API 文档
+- Java 17
+- Spring Boot 3.5.5
+- MyBatis-Plus 3.5.5
+- MySQL 8.3.0（建表 SQL 在 `init.sql`）
+- JWT（io.jsonwebtoken）
+- Spring Security
+- Freemarker（代码生成模板在 `src/main/resources/templates/`）
+- Springdoc OpenAPI
+- Actuator
 
 ---
 
 ## 目录结构（关键文件）
 
-- `src/main/java/com/example/template`：项目主代码  
-  - `controller/`：`UserController`, `EnumController`  
-  - `config/`：`ApiResponseWrapper`, `MyBatisPlusConfig`, `MyMetaObjectHandler`  
-  - `devtools/CodeGenerator.java`：代码生成器（Main 方法）  
-  - `util/`：`EnumUtils`, `LoadProperties` 等工具  
-- `src/main/resources/application-dev.properties`、`application-prod.properties`：环境配置  
-- `user.sql`：建表与样例数据  
-- `src/main/resources/templates/`：代码生成 Freemarker 模板（entity、controller）
+主包路径：`src/main/java/com/github/zxs1994/java_template/`
+   - `controller/`：用户、角色、权限等 REST 控制器（如 `UserController`、`RoleController` 等）
+   - `entity/`：实体类（如 `User`、`Role`、`Permission` 等）
+   - `service/`：业务接口与实现（如 `IUserService`、`UserServiceImpl`）
+   - `mapper/`：MyBatis-Plus Mapper 接口
+   - `config/`：配置类（如 `SecurityConfig`、`JwtAuthenticationFilter`、`MyBatisPlusConfig`）
+   - `common/`：通用响应、异常、基础类（如 `ApiResponse`、`BaseEntity`、`BizException`）
+   - `util/`：工具类（如 `EnumUtils`、`TimeProvider`、`LoadProperties`、`JwtUtils`）
+   - `dto/`：数据传输对象（如 `LoginRequest`、`LoginResponse`）
+   - `enums/`：枚举类型
+   - `devtools/`：代码生成器入口（`src/main/java/devtools/CodeGenerator.java`）
+资源文件：
+   - `src/main/resources/application-dev.properties`、`application-prod.properties`、`project.properties`：配置文件
+   - `src/main/resources/templates/`：代码生成 Freemarker 模板（entity、controller）
+数据库建表 SQL：
+   - `init.sql`：包含 user、role、permission、user_role、role_permission 五张表结构
 
 ---
 
@@ -50,7 +63,7 @@
 ### 克隆 & 构建
 ```bash
 git clone <repo-url>
-cd springboot-mybatis-plus-template
+cd java_template
 mvn clean package
 ```
 
@@ -58,17 +71,16 @@ mvn clean package
 - 开发（使用 dev 配置）
 ```bash
 mvn spring-boot:run
-# 或者
-java -jar target/template-1.0.0.jar
+java -jar target/java_template-1.0.0.jar
 ```
 
 - 生产运行示例（带 JVM 时区参数，见 `deploy.sh`）：
 ```bash
 # 最简单启动（示例）
-java -jar target/template-1.0.0.jar --spring.profiles.active=prod
+java -jar target/java_template-1.0.0.jar --spring.profiles.active=prod
 
 # 带示例 JVM 内存配置（可选）
-java -Xms512m -Xmx1g -jar target/template-1.0.0.jar --spring.profiles.active=prod
+java -Xms512m -Xmx1g -jar target/java_template-1.0.0.jar --spring.profiles.active=prod
 ```
 
 
@@ -80,19 +92,22 @@ java -Xms512m -Xmx1g -jar target/template-1.0.0.jar --spring.profiles.active=pro
 
 ## 数据库 & 样例数据 🗄️
 
-- 建表与样例数据在 `user.sql`，包含 `user` 表结构与三条样例记录。导入后即可直接测试 API。
+数据库建表与样例数据在 `init.sql`，包含 user、role、permission、user_role、role_permission 五张表结构。导入后即可直接测试 API。
 
 ---
 
 ## API 示例（重要端点） 🔎
 
-- 列表：GET /user  
-- 获取：GET /user/{id}  
-- 新增：POST /user  （JSON body）  
-- 更新：PUT /user   （JSON body）  
-- 删除：DELETE /user/{id}  
-- 分页：GET /user/page?page=1&size=10  
-- 枚举：GET /enums/all  （返回项目中枚举的统一列表）
+- 用户相关：
+   - 列表：GET /user
+   - 获取：GET /user/{id}
+   - 新增：POST /user  （JSON body）
+   - 更新：PUT /user   （JSON body）
+   - 删除：DELETE /user/{id}
+   - 分页：GET /user/page?page=1&size=10
+- 枚举统一接口：GET /enums/all
+- 角色、权限、用户-角色、角色-权限等接口均有对应 CRUD
+
 
 示例 curl（列出所有用户）：
 ```bash
@@ -105,9 +120,10 @@ curl -X GET http://localhost:8088/user
 
 ## 代码生成器（快速生成实体/Mapper/Controller） 🛠️
 
-- 运行：在 IDE 中以 `devtools.CodeGenerator` 的 `main` 方法运行  
-- 配置读取：`src/main/resources/application-dev.properties`（从中读取数据源）  
-- 模板：`src/main/resources/templates`（可自定义）
+代码生成器：
+- 入口：`src/main/java/devtools/CodeGenerator.java`，直接运行 main 方法即可
+- 配置读取：`src/main/resources/application-dev.properties`（数据库连接）、`project.properties`（基础包名）
+- 模板：`src/main/resources/templates/`（可自定义 entity/controller）
 
 ---
 
@@ -120,7 +136,7 @@ curl -X GET http://localhost:8088/user
 
 ## 开发注意事项 & 约定 ⚠️
 
-- `BaseEntity` 使用 `OffsetDateTime` 存储 `createdAt` / `updatedAt`。项目中提供了 `TimeProvider`（`src/main/java/com/example/template/util/TimeProvider.java`），其 `now()` 返回 `OffsetDateTime.now(ZoneOffset.ofHours(8))`（即固定 `+08:00`），并在 `MyMetaObjectHandler` 中用于自动填充（`createdAt` / `updatedAt`）。
+`BaseEntity` 使用 `OffsetDateTime` 存储 `createdAt` / `updatedAt`。项目中提供了 `TimeProvider`（`src/main/java/com/github/zxs1994/java_template/util/TimeProvider.java`），其 `now()` 返回 `OffsetDateTime.now(ZoneOffset.ofHours(8))`（即固定 `+08:00`），并在 `MyMetaObjectHandler` 中用于自动填充（`createdAt` / `updatedAt`）。
 
 - `spring.jackson.time-zone=Asia/Shanghai` 与 `spring.jackson.serialization.write-dates-as-timestamps=false`：对于 `OffsetDateTime` 来说序列化会带偏移，但该配置仍推荐保留，以保证 `LocalDateTime` / `Instant` 的序列化行为一致且对客户端友好。
 
@@ -156,8 +172,8 @@ curl -X GET http://localhost:8088/user
 
 ## 测试 & 扩展 💡
 
-- 添加集成测试或单元测试（当前仓库无测试示例）  
-- 可接入 Actuator（已经添加依赖）用于监控
+- 可添加集成测试或单元测试（当前仓库暂无测试样例）
+- 已集成 Actuator，可用于健康监控
 
 ---
 

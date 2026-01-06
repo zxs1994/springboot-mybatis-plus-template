@@ -1,7 +1,7 @@
-package com.example.template.config;
+package com.github.zxs1994.java_template.config;
 
-import com.example.template.common.NoApiWrap;
-import com.example.template.util.LoadProperties;
+import com.github.zxs1994.java_template.common.NoApiWrap;
+import com.github.zxs1994.java_template.util.LoadProperties;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Components;

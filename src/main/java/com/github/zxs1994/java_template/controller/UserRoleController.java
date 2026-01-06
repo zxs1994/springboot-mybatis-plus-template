@@ -1,7 +1,7 @@
-package com.example.template.controller;
+package com.github.zxs1994.java_template.controller;
 
-import com.example.template.entity.UserRole;
-import com.example.template.service.IUserRoleService;
+import com.github.zxs1994.java_template.entity.UserRole;
+import com.github.zxs1994.java_template.service.IUserRoleService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;

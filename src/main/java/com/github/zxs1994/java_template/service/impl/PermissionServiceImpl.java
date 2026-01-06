@@ -1,8 +1,8 @@
-package com.example.template.service.impl;
+package com.github.zxs1994.java_template.service.impl;
 
-import com.example.template.entity.Permission;
-import com.example.template.mapper.PermissionMapper;
-import com.example.template.service.IPermissionService;
+import com.github.zxs1994.java_template.entity.Permission;
+import com.github.zxs1994.java_template.mapper.PermissionMapper;
+import com.github.zxs1994.java_template.service.IPermissionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
