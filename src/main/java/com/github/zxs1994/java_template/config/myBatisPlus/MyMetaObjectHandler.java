@@ -1,4 +1,4 @@
-package com.github.zxs1994.java_template.config;
+package com.github.zxs1994.java_template.config.myBatisPlus;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.github.zxs1994.java_template.util.TimeProvider;

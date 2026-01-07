@@ -1,30 +1,31 @@
 package com.github.zxs1994.java_template.config;
 
 import com.github.zxs1994.java_template.common.NoApiWrap;
-import com.github.zxs1994.java_template.util.LoadProperties;
+import com.github.zxs1994.java_template.config.security.SecurityProperties;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OperationCustomizer;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Properties;
 
 @Configuration
 public class OpenApiConfig {
+
+    @Autowired
+    private SecurityProperties securityProperties;
+
+    @Autowired
+    private ProjectProperties projectProperties;
 
     /**
      * 每个接口的 Operation 自定义，用于包装 200 响应为 ApiResponse<T>
@@ -68,9 +69,11 @@ public class OpenApiConfig {
 
                     // 包装成 ApiResponse<T>
                     Schema<?> wrapper = new ObjectSchema()
+                            .addProperty("success", new BooleanSchema().example(true))
                             .addProperty("code", new IntegerSchema().example(200))
+                            .addProperty("data", originalSchema)
                             .addProperty("msg", new StringSchema().example("ok"))
-                            .addProperty("data", originalSchema);
+                            .addProperty("version", new StringSchema().example("1.0.0"));
 
                     media.setSchema(wrapper);
                 });
@@ -84,11 +87,9 @@ public class OpenApiConfig {
      * 用于控制每个接口右边有没有🔒, 不在白名单的都加锁
      */
     @Bean
-    public OperationCustomizer securityOperationCustomizer(@Value("${security.permit-urls}") String permitUrls) {
-        // 白名单 URL 列表
-        List<String> urls = Arrays.stream(permitUrls.split(","))
-                .map(String::trim)
-                .toList();
+    public OperationCustomizer securityOperationCustomizer() {
+
+        List<String> permitUrls = securityProperties.getPermitUrls();
 
         return (operation, handlerMethod) -> {
             // 取方法路径
@@ -125,7 +126,7 @@ public class OpenApiConfig {
                     + (methodPath != null ? (methodPath.startsWith("/") ? methodPath : "/" + methodPath) : "");
 
             // 判断是否在白名单
-            boolean isPermit = urls.stream().anyMatch(urlPattern -> {
+            boolean isPermit = permitUrls.stream().anyMatch(urlPattern -> {
                 if (urlPattern.endsWith("/**")) {
                     String prefix = urlPattern.substring(0, urlPattern.length() - 3);
                     return fullPath.startsWith(prefix);
@@ -160,12 +161,14 @@ public class OpenApiConfig {
                 .bearerFormat("JWT")
                 .in(SecurityScheme.In.HEADER)
                 .name("Authorization");
-        Properties ProjectProps = LoadProperties.loadProject();
+
+//        System.out.println(projectProperties.getName());
+
         return new OpenAPI()
                 .info(new Info()
-                        .title(ProjectProps.getProperty("project.name"))
-                        .version(ProjectProps.getProperty("project.version"))
-                        .description(ProjectProps.getProperty("project.description"))
+                        .title(projectProperties.getName())
+                        .version(projectProperties.getVersion())
+                        .description(projectProperties.getDescription())
                 )
                 .components(new Components().addSecuritySchemes("jwt", securityScheme));
     }

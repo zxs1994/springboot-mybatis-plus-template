@@ -2,21 +2,18 @@ package devtools;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import com.github.zxs1994.java_template.util.LoadProperties;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Properties;
 
 public class CodeGenerator {
 
     public static void main(String[] args) throws IOException {
-        Properties devProps = LoadProperties.loadDev();
 
-        String url = devProps.getProperty("spring.datasource.url");
-        String username = devProps.getProperty("spring.datasource.username");
-        String password = devProps.getProperty("spring.datasource.password");
-        String basePackage = LoadProperties.getBasePackage();
+        String url = LoadYaml.getDevProperty("spring", "datasource", "url");
+        String username = LoadYaml.getDevProperty("spring", "datasource", "username");
+        String password = LoadYaml.getDevProperty("spring", "datasource", "password");
+        String basePackage = LoadYaml.getBasePackage();
 
 //        System.out.println("数据库 URL: " + url);
 //        System.out.println("数据库 用户名: " + username);
@@ -41,7 +38,7 @@ public class CodeGenerator {
 //                            .xml("mapper.xml")
                 )
                 .strategyConfig(builder -> builder
-                        // .addInclude(tableName)
+                         .addInclude(tableName)
 
                         .entityBuilder()
                             .entityBuilder()

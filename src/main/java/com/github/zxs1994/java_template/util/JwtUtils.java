@@ -1,6 +1,6 @@
 package com.github.zxs1994.java_template.util;
 
-import com.github.zxs1994.java_template.config.JwtProperties;
+import com.github.zxs1994.java_template.config.jwt.JwtProperties;
 import com.github.zxs1994.java_template.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

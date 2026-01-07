@@ -1,11 +1,11 @@
-package com.github.zxs1994.java_template.config;
+package com.github.zxs1994.java_template.config.security;
 
 import com.github.zxs1994.java_template.common.ApiResponse;
+import com.github.zxs1994.java_template.config.jwt.JwtAuthenticationFilter;
 import com.github.zxs1994.java_template.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableAutoConfiguration(exclude = {UserDetailsServiceAutoConfiguration.class})
@@ -28,19 +26,19 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 从配置文件读取放行的 URL（逗号分隔）
-    @Value("${security.permit-urls}")
-    private String permitUrls;
+    private final SecurityProperties securityProperties;
+
+    public SecurityConfig(SecurityProperties securityProperties) {
+        this.securityProperties = securityProperties;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
             JwtUtils jwtUtils,
             ObjectMapper objectMapper) throws Exception {
 
-        // 转成数组，直接用于 requestMatchers
-        String[] urls = Arrays.stream(permitUrls.split(","))
-                .map(String::trim)
-                .toArray(String[]::new);
+        String[] urls = securityProperties.getPermitUrls().toArray(new String[0]);
+
 
         // 创建 JWT 过滤器实例
         JwtAuthenticationFilter jwtFilter =

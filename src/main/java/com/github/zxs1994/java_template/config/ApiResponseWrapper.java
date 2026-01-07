@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import com.github.zxs1994.java_template.common.ApiResponse;
 import com.github.zxs1994.java_template.common.NoApiWrap;
 
+import java.util.stream.Collectors;
+
 @RestControllerAdvice
 public class ApiResponseWrapper implements ResponseBodyAdvice<Object> {
 
@@ -67,22 +69,25 @@ public class ApiResponseWrapper implements ResponseBodyAdvice<Object> {
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<String> handleException(Exception ex) {
-        return ApiResponse.fail(500, null, ex.getMessage());
+        return ApiResponse.fail(500, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<String> handleValidationException(MethodArgumentNotValidException ex) {
-        String msg = ex.getBindingResult().getFieldError().getDefaultMessage();
-        return ApiResponse.fail(400, null, msg);
+        String msg = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .map(f -> f.getField() + ":" + f.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        return ApiResponse.fail(400, msg);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ApiResponse<String> handleNotFoundException(NotFoundException ex) {
-        return ApiResponse.fail(404, null, ex.getMessage());
+        return ApiResponse.fail(404, ex.getMessage());
     }
 
     @ExceptionHandler(BizException.class)
     public ApiResponse<String> handleBizException(BizException ex) {
-        return ApiResponse.fail(ex.getCode(), null, ex.getMessage());
+        return ApiResponse.fail(ex.getCode(), ex.getMessage());
     }
 }

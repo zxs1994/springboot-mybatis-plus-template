@@ -1,7 +1,8 @@
 package com.github.zxs1994.java_template.controller;
 
-import com.github.zxs1994.java_template.util.LoadProperties;
+import com.github.zxs1994.java_template.config.ProjectProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,13 +11,25 @@ import com.github.zxs1994.java_template.util.EnumUtils;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * <p>
+ * 枚举接口, 扫描/enums文件夹,返回所有枚举
+ * </p>
+ *
+ * @author xusheng
+ * @since 2026-01-05
+ */
+
 @RestController
 @RequestMapping("/enums")
 @Tag(name = "枚举", description = "枚举控制器")
 public class EnumController {
 
+    @Autowired
+    ProjectProperties projectProperties;
+
     @GetMapping("/all")
     public Map<String, List<Map<String, Object>>> allEnums() {
-        return EnumUtils.loadAllEnums(LoadProperties.getBasePackage() + ".enums");
+        return EnumUtils.loadAllEnums(projectProperties.getBasePackage() + ".enums");
     }
 }

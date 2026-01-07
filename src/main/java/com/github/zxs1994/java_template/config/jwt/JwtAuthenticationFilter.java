@@ -1,4 +1,4 @@
-package com.github.zxs1994.java_template.config;
+package com.github.zxs1994.java_template.config.jwt;
 
 import com.github.zxs1994.java_template.util.JwtUtils;
 import jakarta.servlet.FilterChain;

@@ -14,21 +14,35 @@
 - 统一 API 响应封装（`ApiResponse`），可用 `@NoApiWrap` 跳过
 - 内置代码生成器（`src/main/java/devtools/CodeGenerator.java` + Freemarker 模板）
 - Swagger / OpenAPI 文档（springdoc）
-- Actuator 健康监控
 
 ---
 
-## 技术栈 🔧
 
-- Java 17
-- Spring Boot 3.5.5
-- MyBatis-Plus 3.5.5
-- MySQL 8.3.0（建表 SQL 在 `init.sql`）
-- JWT（io.jsonwebtoken）
-- Spring Security
-- Freemarker（代码生成模板在 `src/main/resources/templates/`）
-- Springdoc OpenAPI
-- Actuator
+
+## 技术栈与依赖分组 🔧
+
+- **Java 17**
+- **Spring Boot 3.5.5**
+   - Web 支持：`spring-boot-starter-web`
+   - 安全框架：`spring-boot-starter-security`、`spring-security-crypto`
+- **MyBatis-Plus 3.5.5**
+   - 启动器：`mybatis-plus-spring-boot3-starter`
+   - 代码生成器：`mybatis-plus-generator`
+- **MySQL 8.3.0**（建表 SQL 在 `init.sql`，驱动：`mysql-connector-j`）
+- **JWT 认证**（`io.jsonwebtoken`）
+   - `jjwt-api`（主包）、`jjwt-impl`（运行时）、`jjwt-jackson`（运行时，支持 Jackson 序列化）
+- **文档与开发工具**
+   - OpenAPI 文档：`springdoc-openapi-starter-webmvc-ui`
+   - Lombok：`lombok`（仅开发期依赖）
+   - Freemarker：`freemarker`（代码生成模板在 `src/main/resources/templates/`）
+
+> 依赖已在 `pom.xml` 中分组并添加详细注释，便于维护和理解。
+> 
+> **依赖维护建议：**
+> - `pom.xml` 依赖已分为 Web/REST、安全、数据库、JWT、开发工具等分组，并为每个依赖添加了中文注释。
+> - 推荐后续新增依赖时，按分组和注释风格补充，保持结构清晰。
+> - 依赖版本管理建议统一在 `<dependency>` 内指定，便于升级和排查。
+> - 如需了解依赖分组和注释示例，请直接参考 `pom.xml` 文件。
 
 ---
 
@@ -41,12 +55,12 @@
    - `mapper/`：MyBatis-Plus Mapper 接口
    - `config/`：配置类（如 `SecurityConfig`、`JwtAuthenticationFilter`、`MyBatisPlusConfig`）
    - `common/`：通用响应、异常、基础类（如 `ApiResponse`、`BaseEntity`、`BizException`）
-   - `util/`：工具类（如 `EnumUtils`、`TimeProvider`、`LoadProperties`、`JwtUtils`）
+   - `util/`：工具类（如 `EnumUtils`、`TimeProvider`、`JwtUtils`、`LoadYaml`）
    - `dto/`：数据传输对象（如 `LoginRequest`、`LoginResponse`）
    - `enums/`：枚举类型
    - `devtools/`：代码生成器入口（`src/main/java/devtools/CodeGenerator.java`）
 资源文件：
-   - `src/main/resources/application-dev.properties`、`application-prod.properties`、`project.properties`：配置文件
+   - `src/main/resources/application.yml`、`application-dev.yml`、`application-prod.yml`、`project.yml`：配置文件（全部为 yml 格式）
    - `src/main/resources/templates/`：代码生成 Freemarker 模板（entity、controller）
 数据库建表 SQL：
    - `init.sql`：包含 user、role、permission、user_role、role_permission 五张表结构
@@ -58,7 +72,7 @@
 ### 前置条件
 - JDK 17  
 - Maven  
-- MySQL（或修改 `application-dev.properties` 为你的数据源）
+- MySQL（或修改 `application-dev.yml` 为你的数据源）
 
 ### 克隆 & 构建
 ```bash
@@ -85,8 +99,8 @@ java -Xms512m -Xmx1g -jar target/java_template-1.0.0.jar --spring.profiles.activ
 
 
 ### 配置
-- 默认激活 profile：`application.properties` 中 `spring.profiles.active=dev`  
-- 开发环境数据库配置：`src/main/resources/application-dev.properties`（示例已指向 `jdbc:mysql://127.0.0.1:3306/demo?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false`）
+- 默认激活 profile：`application.yml` 中 `spring.profiles.active=dev`
+- 开发环境数据库配置：`src/main/resources/application-dev.yml`（示例已指向 `jdbc:mysql://127.0.0.1:3306/demo?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false`）
 
 ---
 
@@ -102,7 +116,7 @@ java -Xms512m -Xmx1g -jar target/java_template-1.0.0.jar --spring.profiles.activ
    - 列表：GET /user
    - 获取：GET /user/{id}
    - 新增：POST /user  （JSON body）
-   - 更新：PUT /user   （JSON body）
+   - 更新：PUT /user/{id}   （JSON body）
    - 删除：DELETE /user/{id}
    - 分页：GET /user/page?page=1&size=10
 - 枚举统一接口：GET /enums/all
@@ -122,7 +136,7 @@ curl -X GET http://localhost:8088/user
 
 代码生成器：
 - 入口：`src/main/java/devtools/CodeGenerator.java`，直接运行 main 方法即可
-- 配置读取：`src/main/resources/application-dev.properties`（数据库连接）、`project.properties`（基础包名）
+- 配置读取：`src/main/resources/application-dev.yml`（数据库连接）、`project.yml`（基础包名）
 - 模板：`src/main/resources/templates/`（可自定义 entity/controller）
 
 ---
@@ -173,7 +187,6 @@ curl -X GET http://localhost:8088/user
 ## 测试 & 扩展 💡
 
 - 可添加集成测试或单元测试（当前仓库暂无测试样例）
-- 已集成 Actuator，可用于健康监控
 
 ---
 

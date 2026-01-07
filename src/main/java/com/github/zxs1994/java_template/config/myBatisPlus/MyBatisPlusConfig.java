@@ -1,4 +1,4 @@
-package com.github.zxs1994.java_template.config;
+package com.github.zxs1994.java_template.config.myBatisPlus;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -6,11 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("classpath:project.properties")
-@MapperScan(basePackages = "${project.base-package}.mapper")
+@MapperScan("${project.base-package}.mapper")
 public class MyBatisPlusConfig {
 
     /**

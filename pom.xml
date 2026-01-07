@@ -13,6 +13,8 @@
 
     <groupId>com.github.zxs1994</groupId>
     <artifactId>java_template</artifactId>
+    <name>系统模板 API</name>
+    <description>SpringBoot + MyBatis-Plus 模板项目（JWT + RBAC）</description>
     <version>1.0.0</version>
 
     <properties>
@@ -20,30 +22,38 @@
     </properties>
 
     <dependencies>
-        <!-- Web / REST -->
+        <!-- ================= Web/REST 相关依赖 ================= -->
+
+        <!-- Spring Boot Web 支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- 可选：健康检查 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
+        <!-- ================= 安全相关依赖 ================= -->
 
-        <!-- Spring Security -->
+        <!-- Spring Security 基础安全框架 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- Spring Security 密码加密（BCrypt）工具包 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
+        <!-- ================= 文档与开发工具 ================= -->
+
+        <!-- OpenAPI 文档生成与 UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.8.13</version>
         </dependency>
 
+        <!-- Lombok 简化 Java 代码（仅开发期依赖） -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -51,55 +61,60 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- ================= 数据库相关依赖 ================= -->
+
+        <!-- MySQL 驱动 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.3.0</version>
         </dependency>
 
+        <!-- MyBatis-Plus 核心启动器 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.5</version>
         </dependency>
 
+        <!-- MyBatis-Plus 代码生成器 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
             <version>3.5.15</version>
         </dependency>
 
+        <!-- Freemarker 模板引擎（代码生成用） -->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.32</version>
         </dependency>
 
-        <!-- JWT -->
+        <!-- ================= JWT 相关依赖 ================= -->
+         
+        <!-- JWT API（主包） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.11.5</version>
         </dependency>
+
+        <!-- JWT 实现（运行时依赖） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- JWT 支持 Jackson 序列化（运行时依赖） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- BCrypt 密码加密 -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -110,26 +125,27 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- 生成 project.properties 插件 -->
+            <!-- 生成 project.yml 插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>write-project-properties</id>
+                        <id>write-project-yml</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <target>
-                                <echo file="${project.basedir}/src/main/resources/project.properties">
-# 由插件生成,禁止手动修改这个文件
-project.name=用户管理系统 API
-project.description=SpringBoot + MyBatis-Plus 模板项目（JWT + RBAC）
-project.base-package=${project.groupId}.${project.artifactId}
-project.version=${project.version}
+                                <echo file="${project.basedir}/src/main/resources/project.yml">
+# 由插件生成, 禁止手动修改project.yml, 使用complie生成
+project:
+    name: ${name}
+    description: ${description}
+    base-package: ${project.groupId}.${project.artifactId}
+    version: ${project.version}
                                 </echo>
                             </target>
                         </configuration>

@@ -36,10 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         User user = getOne(wrapper, false);
         if(user == null || !passwordEncoder.matches(req.getPassword(), user.getPassword())) {
             // 登录失败，抛业务异常
-//            throw new BizException(400, "用户名或密码错误");
-            LoginResponse res = new LoginResponse();
-            res.setToken("123");
-            return res;
+            throw new BizException(400, "用户名或密码错误");
         }
         String token = jwtUtils.generateToken(user);
         LoginResponse res = new LoginResponse();

@@ -12,7 +12,7 @@ import com.github.zxs1994.java_template.common.BaseEntity;
  * </p>
  *
  * @author xusheng
- * @since 2026-01-06 09:59:56
+ * @since 2026-01-07 15:39:50
  */
 
 @Data
