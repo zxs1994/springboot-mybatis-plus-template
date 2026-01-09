@@ -3,6 +3,7 @@ package ${package.Entity};
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import ${basePackage}.common.BaseEntity;
 
@@ -29,6 +30,10 @@ public class ${entity} extends BaseEntity {
     <#-- 逻辑删除 -->
     <#if field.logicDeleteField>
     @TableLogic
+    @JsonIgnore
+    @Schema(hidden = true)
+    <#else>
+    @Schema(description = "${field.comment}")
     </#if>
     <#-- 自动填充 -->
     <#if field.fill??>
@@ -36,7 +41,6 @@ public class ${entity} extends BaseEntity {
     <#elseif field.name != field.columnName>
     @TableField("${field.columnName}")
     </#if>
-    @Schema(description = "${field.comment}")
     private ${field.propertyType} ${field.propertyName};
 
 </#list>

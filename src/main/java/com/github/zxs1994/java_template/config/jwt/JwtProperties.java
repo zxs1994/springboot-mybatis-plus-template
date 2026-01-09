@@ -1,8 +1,11 @@
 package com.github.zxs1994.java_template.config.jwt;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+@Getter
 @Component
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
@@ -10,6 +13,7 @@ public class JwtProperties {
     /**
      * JWT 密钥
      */
+    @Setter
     private String secret;
 
     /**
@@ -20,6 +24,7 @@ public class JwtProperties {
     /**
      * 默认角色
      */
+    @Setter
     private String defaultRole;
 
     /**
@@ -27,33 +32,10 @@ public class JwtProperties {
      */
     private long expireMillis;
 
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
-
-    public int getExpireDays() {
-        return expireDays;
-    }
-
     public void setExpireDays(int expireDays) {
         this.expireDays = expireDays;
         // ⚠️ 一定要用 long 参与计算
         this.expireMillis = expireDays * 24L * 60 * 60 * 1000;
     }
 
-    public long getExpireMillis() {
-        return expireMillis;
-    }
-
-    public String getDefaultRole() {
-        return defaultRole;
-    }
-
-    public void setDefaultRole(String defaultRole) {
-        this.defaultRole = defaultRole;
-    }
 }

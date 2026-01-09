@@ -1,5 +1,6 @@
 package com.github.zxs1994.java_template.controller;
 
+import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.Role;
 import com.github.zxs1994.java_template.service.IRoleService;
 import org.springframework.web.bind.annotation.*;
@@ -16,50 +17,66 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  * </p>
  *
  * @author xusheng
- * @since 2026-01-06 09:59:01
+ * @since 2026-01-09 12:29:54
  */
 
 @RestController
 @RequestMapping("/role")
-@Tag(name = "角色", description = "角色 控制器")
+@Tag(name = "角色", description = "角色控制器")
 public class RoleController {
 
     @Autowired
     private IRoleService roleService;
 
     @GetMapping
-    @Operation(summary = "获取所有 角色 列表")
+    @Operation(summary = "角色列表")
     public List<Role> list() {
         return roleService.list();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "根据 ID 获取 角色")
+    @Operation(summary = "获取角色")
     public Role get(@PathVariable Long id) {
-        return roleService.getById(id);
+        Role role = roleService.getById(id);
+        if (role == null) {
+            throw new BizException(404, "角色未找到");
+        }
+        return role;
     }
 
     @PostMapping
-    @Operation(summary = "新增 角色")
-    public boolean save(@RequestBody Role role) {
-        return roleService.save(role);
+    @Operation(summary = "新增角色")
+    public Role save(@RequestBody Role role) {
+        boolean success = roleService.save(role);
+        if (!success) {
+            throw new BizException(400, "新增角色失败");
+        }
+        return role;
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "更新 角色")
-    public boolean update(@PathVariable Long id, @RequestBody Role role) {
+    @Operation(summary = "更新角色")
+    public Role update(@PathVariable Long id, @RequestBody Role role) {
         role.setId(id);
-        return roleService.updateById(role);
+        boolean success = roleService.updateById(role);
+        if (!success) {
+            throw new BizException(400, "更新角色失败");
+        }
+        return role;
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除 角色 根据 ID")
-    public boolean delete(@PathVariable Long id) {
-        return roleService.removeById(id);
+    @Operation(summary = "删除角色")
+    public Void delete(@PathVariable Long id) {
+        boolean success = roleService.removeById(id);
+        if (!success) {
+            throw new BizException(400, "删除角色失败");
+        }
+        return null;
     }
 
     @GetMapping("/page")
-    @Operation(summary = "分页获取 角色 列表")
+    @Operation(summary = "角色列表(分页)")
     public Page<Role> page(@RequestParam(defaultValue = "1") long page,
                                  @RequestParam(defaultValue = "10") long size) {
         return roleService.page(new Page<>(page, size));

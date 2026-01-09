@@ -1,6 +1,7 @@
 <#-- templates/controller.java.ftl -->
 package ${basePackage}.controller;
 
+import ${basePackage}.common.BizException;
 import ${basePackage}.entity.${entity};
 import ${basePackage}.service.I${entity}Service;
 import org.springframework.web.bind.annotation.*;
@@ -35,46 +36,62 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 @RestController
 @RequestMapping("/${entityLower}")
-@Tag(name = "${entityComment}", description = "${entityComment} 控制器")
+@Tag(name = "${entityComment}", description = "${entityComment}控制器")
 public class ${entity}Controller {
 
     @Autowired
     private I${entity}Service ${entityLower}Service;
 
     @GetMapping
-    @Operation(summary = "获取所有 ${entityComment} 列表")
+    @Operation(summary = "${entityComment}列表")
     public List<${entity}> list() {
         return ${entityLower}Service.list();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "根据 ID 获取 ${entityComment}")
+    @Operation(summary = "获取${entityComment}")
     public ${entity} get(@PathVariable Long id) {
-        return ${entityLower}Service.getById(id);
+        ${entity} entityLower = ${entityLower}Service.getById(id);
+        if (entityLower == null) {
+            throw new NotFoundException("${entityComment}未找到");
+        }
+        return entityLower;
     }
 
     @PostMapping
-    @Operation(summary = "新增 ${entityComment}")
-    public boolean save(@RequestBody ${entity} ${entityLower}) {
-        return ${entityLower}Service.save(${entityLower});
+    @Operation(summary = "新增${entityComment}")
+    public ${entity} save(@RequestBody ${entity} ${entityLower}) {
+        boolean success = ${entityLower}Service.save(${entityLower});
+        if (!success) {
+            throw new BizException(400, "新增${entityComment}失败");
+        }
+        return ${entityLower};
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "更新 ${entityComment}")
-    public boolean update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
+    @Operation(summary = "更新${entityComment}")
+    public ${entity} update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
         ${entityLower}.setId(id);
-        return ${entityLower}Service.updateById(${entityLower});
+        boolean success = ${entityLower}Service.updateById(${entityLower});
+        if (!success) {
+            throw new BizException(400, "更新${entityComment}失败");
+        }
+        return ${entityLower};
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除 ${entityComment} 根据 ID")
-    public boolean delete(@PathVariable Long id) {
-        return ${entityLower}Service.removeById(id);
+    @Operation(summary = "删除${entityComment}")
+    public Void delete(@PathVariable Long id) {
+        boolean success = ${entityLower}Service.removeById(id);
+        if (!success) {
+            throw new BizException(400, "删除${entityComment}失败");
+        }
+        return null;
     }
 
     <#-- 分页接口 -->
     @GetMapping("/page")
-    @Operation(summary = "分页获取 ${entityComment} 列表")
+    @Operation(summary = "${entityComment}列表(分页)")
     public Page<${entity}> page(@RequestParam(defaultValue = "1") long page,
                                  @RequestParam(defaultValue = "10") long size) {
         return ${entityLower}Service.page(new Page<>(page, size));

@@ -1,6 +1,7 @@
 package com.github.zxs1994.java_template.config.jwt;
 
-import com.github.zxs1994.java_template.util.JwtUtils;
+import com.github.zxs1994.java_template.entity.User;
+import com.github.zxs1994.java_template.mapper.UserMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,11 +17,12 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationFilter(JwtUtils jwtUtils, ObjectMapper objectMapper) {
+    private final UserMapper userMapper;
+
+    public JwtAuthenticationFilter(JwtUtils jwtUtils, ObjectMapper objectMapper, UserMapper userMapper) {
         this.jwtUtils = jwtUtils;
-        this.objectMapper = objectMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -29,18 +31,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtils.resolveToken(request);
 
-        try {
             if (token != null && jwtUtils.validateToken(token)) {
-                // token 有效
-                UsernamePasswordAuthenticationToken auth = jwtUtils.getAuthentication(token);
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                Long userId = jwtUtils.getUserIdFromToken(token);
+                Integer tokenVersion = jwtUtils.getTokenVersion(token);
+
+                User user = userMapper.selectById(userId);
+
+                if (tokenVersion.equals(user.getTokenVersion())) {  // 单点登录
+                    UsernamePasswordAuthenticationToken auth = jwtUtils.getAuthentication(token);
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+
             }
 
-        } catch (Exception e) {
-            // token 异常也不要阻止 filterChain
-
-        }
 
         // ⚠️ 无论有没有 token，都要继续往下走
         filterChain.doFilter(request, response);

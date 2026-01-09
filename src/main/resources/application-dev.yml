@@ -19,3 +19,12 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+    doc-expansion: none
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+# 权限扫描开关（⚠️ 仅用于开发/初始化）
+# true  ：启动时扫描 Controller 并同步权限到数据库（可能覆盖/恢复权限数据）
+# false ：不自动扫描，需手动触发权限同步（推荐）
+permission:
+  scan-on-startup: false

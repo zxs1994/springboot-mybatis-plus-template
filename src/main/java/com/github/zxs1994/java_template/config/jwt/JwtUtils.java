@@ -1,18 +1,15 @@
-package com.github.zxs1994.java_template.util;
+package com.github.zxs1994.java_template.config.jwt;
 
-import com.github.zxs1994.java_template.config.jwt.JwtProperties;
 import com.github.zxs1994.java_template.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtUtils {
@@ -33,7 +30,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())             // 用户 ID
-//                .claim("roles", roles)           // 用户角色
+                .claim("tokenVersion", user.getTokenVersion())
                 .setIssuedAt(new Date(now))      // 签发时间
                 .setExpiration(new Date(now + jwtProperties.getExpireMillis())) // 过期时间
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -55,10 +52,10 @@ public class JwtUtils {
     }
 
     /**
-     * 获取用户角色
+     * 获取token版本
      */
-    public List<String> getRolesFromToken(String token) {
-        return parseToken(token).getBody().get("roles", List.class);
+    public Integer getTokenVersion(String token) {
+        return parseToken(token).getBody().get("tokenVersion", Integer.class);
     }
 
     /**
@@ -98,12 +95,8 @@ public class JwtUtils {
      * 根据 token 获取 Authentication 对象
      */
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
-        String subject = getSubjectFromToken(token);
-        return new UsernamePasswordAuthenticationToken(
-                subject,
-                null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+        Long userId = getUserIdFromToken(token);
+        return new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
     }
 
 }

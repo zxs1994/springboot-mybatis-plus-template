@@ -51,18 +51,6 @@ public class ApiResponseWrapper implements ResponseBodyAdvice<Object> {
             return body;
         }
 
-        // ★ 关键处理：String / 基础类型
-        if (body instanceof String || body instanceof Number || body instanceof Boolean) {
-
-            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-            try {
-                return objectMapper.writeValueAsString(ApiResponse.success(body));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("JSON serialize error", e);
-            }
-        }
-
         // 普通对象直接包装
         return ApiResponse.success(body);
     }

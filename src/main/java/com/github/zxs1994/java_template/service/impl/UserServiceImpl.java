@@ -8,7 +8,7 @@ import com.github.zxs1994.java_template.entity.User;
 import com.github.zxs1994.java_template.mapper.UserMapper;
 import com.github.zxs1994.java_template.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.zxs1994.java_template.util.JwtUtils;
+import com.github.zxs1994.java_template.config.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private UserMapper userMapper;
+
     public LoginResponse login(LoginRequest req) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("email", req.getEmail());
@@ -38,7 +41,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             // 登录失败，抛业务异常
             throw new BizException(400, "用户名或密码错误");
         }
-        String token = jwtUtils.generateToken(user);
+        // 登录成功后
+        User newUser = new User();
+        newUser.setId(user.getId());
+        newUser.setTokenVersion(user.getTokenVersion() + 1);
+        userMapper.updateById(newUser);
+
+        String token = jwtUtils.generateToken(newUser);
         LoginResponse res = new LoginResponse();
         res.setToken(token);
         return res;
@@ -46,7 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public boolean save(User user) {
-        // 校验 email
+        // 1️⃣ 校验 email
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new BizException(400, "邮箱不能为空");
         }
@@ -54,7 +63,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BizException(400, "邮箱格式不正确");
         }
 
-        // 校验密码
+        // 2️⃣ 校验 email 是否重复
+        boolean exists = this.lambdaQuery()
+                .eq(User::getEmail, user.getEmail())
+                .exists();
+
+        if (exists) {
+            throw new BizException(400, "该邮箱已被注册");
+        }
+
+        // 3️⃣ 校验密码
         if (user.getPassword() == null || user.getPassword().isBlank()) {
             throw new BizException(400, "密码不能为空");
         }
@@ -62,10 +80,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BizException(400, "密码长度不能少于6位");
         }
 
-        // ⚡ 自动加密密码
+        // 4️⃣ 加密密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // ⚡ 调用父类 save 方法
+        // 5️⃣ 保存
         return super.save(user);
     }
 }

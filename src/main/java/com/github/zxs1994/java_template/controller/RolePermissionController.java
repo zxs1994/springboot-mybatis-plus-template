@@ -1,5 +1,6 @@
 package com.github.zxs1994.java_template.controller;
 
+import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.RolePermission;
 import com.github.zxs1994.java_template.service.IRolePermissionService;
 import org.springframework.web.bind.annotation.*;
@@ -16,50 +17,66 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  * </p>
  *
  * @author xusheng
- * @since 2026-01-06 09:59:01
+ * @since 2026-01-09 12:29:54
  */
 
 @RestController
 @RequestMapping("/rolePermission")
-@Tag(name = "角色-权限关联", description = "角色-权限关联 控制器")
+@Tag(name = "角色-权限关联", description = "角色-权限关联控制器")
 public class RolePermissionController {
 
     @Autowired
     private IRolePermissionService rolePermissionService;
 
     @GetMapping
-    @Operation(summary = "获取所有 角色-权限关联 列表")
+    @Operation(summary = "角色-权限关联列表")
     public List<RolePermission> list() {
         return rolePermissionService.list();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "根据 ID 获取 角色-权限关联")
+    @Operation(summary = "获取角色-权限关联")
     public RolePermission get(@PathVariable Long id) {
-        return rolePermissionService.getById(id);
+        RolePermission rolePermission = rolePermissionService.getById(id);
+        if (rolePermission == null) {
+            throw new BizException(404, "角色-权限关联未找到");
+        }
+        return rolePermission;
     }
 
     @PostMapping
-    @Operation(summary = "新增 角色-权限关联")
-    public boolean save(@RequestBody RolePermission rolePermission) {
-        return rolePermissionService.save(rolePermission);
+    @Operation(summary = "新增角色-权限关联")
+    public RolePermission save(@RequestBody RolePermission rolePermission) {
+        boolean success = rolePermissionService.save(rolePermission);
+        if (!success) {
+            throw new BizException(400, "新增角色-权限关联失败");
+        }
+        return rolePermission;
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "更新 角色-权限关联")
-    public boolean update(@PathVariable Long id, @RequestBody RolePermission rolePermission) {
+    @Operation(summary = "更新角色-权限关联")
+    public RolePermission update(@PathVariable Long id, @RequestBody RolePermission rolePermission) {
         rolePermission.setId(id);
-        return rolePermissionService.updateById(rolePermission);
+        boolean success = rolePermissionService.updateById(rolePermission);
+        if (!success) {
+            throw new BizException(400, "更新角色-权限关联失败");
+        }
+        return rolePermission;
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除 角色-权限关联 根据 ID")
-    public boolean delete(@PathVariable Long id) {
-        return rolePermissionService.removeById(id);
+    @Operation(summary = "删除角色-权限关联")
+    public Void delete(@PathVariable Long id) {
+        boolean success = rolePermissionService.removeById(id);
+        if (!success) {
+            throw new BizException(400, "删除角色-权限关联失败");
+        }
+        return null;
     }
 
     @GetMapping("/page")
-    @Operation(summary = "分页获取 角色-权限关联 列表")
+    @Operation(summary = "角色-权限关联列表(分页)")
     public Page<RolePermission> page(@RequestParam(defaultValue = "1") long page,
                                  @RequestParam(defaultValue = "10") long size) {
         return rolePermissionService.page(new Page<>(page, size));

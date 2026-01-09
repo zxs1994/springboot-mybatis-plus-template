@@ -1,5 +1,6 @@
 package com.github.zxs1994.java_template.controller;
 
+import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.User;
 import com.github.zxs1994.java_template.service.IUserService;
 import org.springframework.web.bind.annotation.*;
@@ -21,55 +22,71 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 @RestController
 @RequestMapping("/user")
-@Tag(name = "用户", description = "用户 控制器")
+@Tag(name = "用户", description = "用户控制器")
 public class UserController {
 
     @Autowired
     private IUserService userService;
 
     @GetMapping
-    @Operation(summary = "获取所有 用户 列表")
+    @Operation(summary = "用户列表")
     public List<User> list() {
         return userService.list();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "根据 ID 获取 用户")
+    @Operation(summary = "获取用户")
     public User get(@PathVariable Long id) {
-        return userService.getById(id);
+        User user = userService.getById(id);
+        if (user == null) {
+            throw new BizException(404, "用户未找到");
+        }
+        return user;
     }
 
     @PostMapping
-    @Operation(summary = "新增 用户")
-    public boolean save(@RequestBody User user) {
-        return userService.save(user);
+    @Operation(summary = "新增用户")
+    public User save(@RequestBody User user) {
+        boolean success = userService.save(user);
+        if (!success) {
+            throw new BizException(400, "新增用户失败");
+        }
+        return user;
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "更新 用户")
-    public boolean update(@PathVariable Long id, @RequestBody User user) {
+    @Operation(summary = "更新用户")
+    public User update(@PathVariable Long id, @RequestBody User user) {
         user.setId(id);
         user.setPassword(null);
-        return userService.updateById(user);
+        boolean success = userService.updateById(user);
+        if (!success) {
+            throw new BizException(400, "更新用户失败");
+        }
+        return user;
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除 用户 根据 ID")
-    public boolean delete(@PathVariable Long id) {
-        return userService.removeById(id);
+    @Operation(summary = "删除用户")
+    public Void delete(@PathVariable Long id) {
+        boolean success = userService.removeById(id);
+        if (!success) {
+            throw new BizException(400, "删除用户失败");
+        }
+        return null;
     }
 
     @GetMapping("/page")
-    @Operation(summary = "分页获取 用户 列表")
+    @Operation(summary = "用户列表(分页)")
     public Page<User> page(@RequestParam(defaultValue = "1") long page,
                                    @RequestParam(defaultValue = "10") long size) {
         return userService.page(new Page<>(page, size));
     }
 
-    @PostMapping("/register")
-    @Operation(summary = "客户端 新增 用户")
-    public boolean register(@RequestBody User user) {
-        return userService.save(user);
-    }
+//    @PostMapping("/register")
+//    @Operation(summary = "前端新增用户")
+//    public User register(@RequestBody User user) {
+//        return save(user);
+//    }
 
 }

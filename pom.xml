@@ -142,10 +142,10 @@
                                 <echo file="${project.basedir}/src/main/resources/project.yml">
 # 由插件生成, 禁止手动修改project.yml, 使用complie生成
 project:
-    name: ${name}
-    description: ${description}
-    base-package: ${project.groupId}.${project.artifactId}
-    version: ${project.version}
+  name: ${name}
+  description: ${description}
+  base-package: ${project.groupId}.${project.artifactId}
+  version: ${project.version}
                                 </echo>
                             </target>
                         </configuration>

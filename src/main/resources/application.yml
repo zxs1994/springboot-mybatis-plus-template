@@ -13,11 +13,12 @@ spring:
 # URL 白名单
 security:
   permit-urls:
-    - /auth/**
     - /swagger-ui/**
     - /swagger-ui.html
     - /v3/api-docs/**
+    - /favicon.ico
     - /enums/**
+    - /auth/**
     - /user/register
 
 # JWT 配置

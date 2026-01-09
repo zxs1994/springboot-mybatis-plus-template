@@ -38,15 +38,15 @@ public class CodeGenerator {
 //                            .xml("mapper.xml")
                 )
                 .strategyConfig(builder -> builder
-                         .addInclude(tableName)
+//                         .addInclude(tableName)
 
                         .entityBuilder()
-                            .entityBuilder()
                             .enableTableFieldAnnotation() // ✅ 强烈推荐
-                            .addIgnoreColumns("id", "created_at", "updated_at", "deleted")
+                            .addIgnoreColumns("id", "created_at", "updated_at")
+                            .logicDeleteColumnName("deleted")
                             .enableFileOverride() // 覆盖生成的文件
 
-                        .controllerBuilder()
+//                        .controllerBuilder()
                 )
                 .templateEngine(new FreemarkerTemplateEngine())
                 .injectionConfig(builder -> builder

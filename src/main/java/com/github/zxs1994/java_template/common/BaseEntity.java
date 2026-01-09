@@ -1,7 +1,6 @@
 package com.github.zxs1994.java_template.common;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -22,10 +21,4 @@ public class BaseEntity {
     @Schema(description = "更新时间", accessMode = Schema.AccessMode.READ_ONLY)
     @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private OffsetDateTime updatedAt;
-
-    @TableLogic
-    @TableField(value = "deleted")
-    @JsonIgnore
-    @Schema(hidden = true)
-    private Boolean deleted;
 }

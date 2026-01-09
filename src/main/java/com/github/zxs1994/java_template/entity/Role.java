@@ -3,6 +3,7 @@ package com.github.zxs1994.java_template.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import com.github.zxs1994.java_template.common.BaseEntity;
 
@@ -12,7 +13,7 @@ import com.github.zxs1994.java_template.common.BaseEntity;
  * </p>
  *
  * @author xusheng
- * @since 2026-01-07 15:39:50
+ * @since 2026-01-09 16:05:09
  */
 
 @Data
@@ -26,5 +27,10 @@ public class Role extends BaseEntity {
 
     @Schema(description = "角色编码")
     private String code;
+
+    @TableLogic
+    @JsonIgnore
+    @Schema(hidden = true)
+    private Boolean deleted;
 
 }

@@ -3,6 +3,7 @@ package com.github.zxs1994.java_template.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import com.github.zxs1994.java_template.common.BaseEntity;
 
@@ -12,7 +13,7 @@ import com.github.zxs1994.java_template.common.BaseEntity;
  * </p>
  *
  * @author xusheng
- * @since 2026-01-07 16:59:59
+ * @since 2026-01-09 16:05:09
  */
 
 @Data
@@ -29,5 +30,13 @@ public class User extends BaseEntity {
 
     @Schema(description = "密码")
     private String password;
+
+    @Schema(description = "token版本")
+    private Integer tokenVersion;
+
+    @TableLogic
+    @JsonIgnore
+    @Schema(hidden = true)
+    private Boolean deleted;
 
 }

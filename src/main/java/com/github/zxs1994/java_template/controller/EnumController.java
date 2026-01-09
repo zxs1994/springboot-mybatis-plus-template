@@ -1,6 +1,7 @@
 package com.github.zxs1994.java_template.controller;
 
 import com.github.zxs1994.java_template.config.ProjectProperties;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +29,9 @@ public class EnumController {
     @Autowired
     ProjectProperties projectProperties;
 
-    @GetMapping("/all")
-    public Map<String, List<Map<String, Object>>> allEnums() {
+    @GetMapping
+    @Operation(summary = "获取所有枚举")
+    public Map<String, List<Map<String, Object>>> list() {
         return EnumUtils.loadAllEnums(projectProperties.getBasePackage() + ".enums");
     }
 }
