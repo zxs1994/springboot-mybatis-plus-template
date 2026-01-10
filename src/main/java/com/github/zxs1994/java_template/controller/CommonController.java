@@ -22,8 +22,8 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/enums")
-@Tag(name = "枚举", description = "枚举控制器")
+@RequestMapping("/common/enums")
+@Tag(name = "公共--枚举", description = "枚举控制器")
 public class EnumController {
 
     @Autowired

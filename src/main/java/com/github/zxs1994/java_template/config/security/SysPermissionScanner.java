@@ -1,0 +1,253 @@
+package com.github.zxs1994.java_template.config.security;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.github.zxs1994.java_template.entity.SysPermission;
+import com.github.zxs1994.java_template.mapper.SysPermissionMapper;
+import com.github.zxs1994.java_template.util.PathUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Map;
+
+@Component
+@Profile("dev")
+public class SysPermissionScanner implements ApplicationRunner {
+
+    @Value("${sys-permission.scan-on-startup:false}")
+    private boolean scanOnStartup;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Autowired
+    private SysPermissionMapper sysPermissionMapper;
+
+    @Autowired
+    private SecurityProperties securityProperties;
+
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    @Override
+    public void run(ApplicationArguments args) {
+
+        if (!scanOnStartup) return;
+
+        System.out.println("=== SysPermissionScanner：开始扫描权限 ===");
+
+        // 扫描前统一标记为已删除
+        sysPermissionMapper.update(
+                null,
+                new UpdateWrapper<SysPermission>()
+                        .ne("module", "ALL")
+                        .set("del", 1)
+        );
+
+        // 初始化权限, 只会插入一次
+        initGlobalPermissions();
+
+        Map<String, Object> controllers =
+                applicationContext.getBeansWithAnnotation(RestController.class);
+
+        for (Object controllerBean : controllers.values()) {
+
+            Class<?> clazz = AopUtils.getTargetClass(controllerBean);
+
+            // 排除 swagger
+            String className = clazz.getName().toLowerCase();
+            if (className.contains("swagger") || className.contains("openapi")) {
+                continue;
+            }
+
+            // 类级别 如"/sys/role"
+            String basePath = "";
+            if (clazz.isAnnotationPresent(RequestMapping.class)) {
+                RequestMapping rm = clazz.getAnnotation(RequestMapping.class);
+                if (rm.value().length > 0) basePath = rm.value()[0];
+            }
+
+            // 标签名 如"系统--角色"
+            String TagName = "";
+            if (clazz.isAnnotationPresent(Tag.class)) {
+                Tag tag = clazz.getAnnotation(Tag.class);
+                if (!tag.name().isEmpty()) TagName = tag.name();
+            }
+
+            String[] paths = resolveModuleHierarchy(basePath, "/");
+            if (paths.length == 0) continue;
+            String[] moduleNames = resolveModuleHierarchy(TagName, "--");
+
+            String currentPath = "";
+            Long parentId = 1L; // 根模块
+            for (int i = 0; i < paths.length; i++) {
+
+                String module = paths[i].toUpperCase();
+                String moduleName =
+                        moduleNames.length > i
+                                ? moduleNames[i]
+                                : module;   // fallback;
+
+                currentPath += "/" + paths[i];
+                parentId = initModulePermission(
+                        module,
+                        moduleName,
+                        PathUtils.normalize(currentPath, "**"),
+                        parentId
+                );
+            }
+
+            // 2️⃣ 接口级权限
+            for (Method method : clazz.getDeclaredMethods()) {
+
+                MappingInfo mapping = resolveMapping(method);
+
+                if (mapping == null) continue;
+
+                for (String path : mapping.paths) {
+
+                    String fullPath = PathUtils.normalize(basePath, path);
+                    String module = String.join(":", paths);
+//                    System.out.println(module + " " + method.getName() + " " + fullPath);
+                    String code = module + ":" + method.getName();
+
+                    String name = code;
+                    if (method.isAnnotationPresent(Operation.class)) {
+                        Operation op = method.getAnnotation(Operation.class);
+                        if (!op.summary().isEmpty()) name = op.summary();
+                    }
+
+                    insertIfAbsent(name, code, mapping.method, fullPath, module, moduleNames[moduleNames.length - 1], parentId);
+                }
+            }
+        }
+
+        System.out.println("=== SysPermissionScanner：权限扫描完成 ===");
+    }
+
+    /* -------------------- 辅助方法 -------------------- */
+
+    private void initGlobalPermissions() {
+        insertIfAbsent("全局模块", "ALL", "*", "*", "ALL", "全局", null);
+        insertIfAbsent("全局查看", "ALL_GET", "GET", "*", "ALL", "全局", 1L);
+        insertIfAbsent("全局创建", "ALL_POST", "POST", "*", "ALL", "全局", 1L);
+        insertIfAbsent("全局修改", "ALL_PUT", "PUT", "*", "ALL", "全局", 1L);
+        insertIfAbsent("全局删除", "ALL_DELETE", "DELETE", "*", "ALL", "全局", 1l);
+    }
+
+    /**
+     *
+     * @param str
+     * @return /sys/role → ["sys", "role"]
+     */
+    private String[] resolveModuleHierarchy(String str, String regex) {
+        return Arrays.stream(str.split(regex))
+                .filter(s -> !s.isBlank())
+                .toArray(String[]::new);
+    }
+
+    private Long initModulePermission(String module, String moduleName, String path, Long parentId) {
+        return insertIfAbsent(
+                moduleName + "模块",
+                module.toUpperCase(),
+                "*",
+                path,
+                module.toUpperCase(),
+                moduleName,
+                parentId
+        );
+    }
+
+    private Long insertIfAbsent(String name, String code,
+                                String method, String path,
+                                String module, String moduleName, Long parentId) {
+
+        SysPermission p = sysPermissionMapper.selectOne(
+                new QueryWrapper<SysPermission>()
+                        .eq("code", code)
+                        .eq("method", method)
+                        .eq("path", path)
+        );
+
+        int authLevel = getAuthLevel(path);
+
+        if (p == null) {
+            p = new SysPermission();
+            p.setCode(code);
+            p.setMethod(method);
+            p.setPath(path);
+        }
+        p.setName(name);
+        p.setModule(module);
+        p.setModuleName(moduleName);
+        p.setAuthLevel(authLevel);
+        p.setParentId(parentId);
+        p.setDel(false);
+
+        if (p.getId() != null) {
+            sysPermissionMapper.updateById(p);
+        } else {
+            sysPermissionMapper.insert(p);
+        }
+
+        return p.getId();
+    }
+
+    private int getAuthLevel(String path) {
+        int authLevel = 0; // 默认权限校验
+
+        // authLevel 后期增加什么类型应该也从配置文件中读取
+        for (String permit : securityProperties.getPermitUrls()) {
+            if (pathMatcher.match(permit, path)) {
+                authLevel = 1; // 白名单
+                break;
+            }
+        }
+        return authLevel;
+    }
+
+    private MappingInfo resolveMapping(Method method) {
+
+        if (method.isAnnotationPresent(GetMapping.class)) {
+            return new MappingInfo("GET", method.getAnnotation(GetMapping.class).value());
+        }
+        if (method.isAnnotationPresent(PostMapping.class)) {
+            return new MappingInfo("POST", method.getAnnotation(PostMapping.class).value());
+        }
+        if (method.isAnnotationPresent(PutMapping.class)) {
+            return new MappingInfo("PUT", method.getAnnotation(PutMapping.class).value());
+        }
+        if (method.isAnnotationPresent(DeleteMapping.class)) {
+            return new MappingInfo("DELETE", method.getAnnotation(DeleteMapping.class).value());
+        }
+        if (method.isAnnotationPresent(RequestMapping.class)) {
+            RequestMapping rm = method.getAnnotation(RequestMapping.class);
+            String m = rm.method().length > 0 ? rm.method()[0].name() : "GET";
+            return new MappingInfo(m, rm.value());
+        }
+        return null;
+    }
+
+    static class MappingInfo {
+        final String method;
+        final String[] paths;
+
+        MappingInfo(String method, String[] paths) {
+            this.method = method;
+            this.paths = (paths == null || paths.length == 0)
+                    ? new String[]{""}
+                    : paths;
+        }
+    }
+}

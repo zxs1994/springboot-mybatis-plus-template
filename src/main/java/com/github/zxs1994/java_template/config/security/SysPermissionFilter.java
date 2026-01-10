@@ -1,8 +1,8 @@
 package com.github.zxs1994.java_template.config.security;
 
 import com.github.zxs1994.java_template.config.jwt.JwtUtils;
-import com.github.zxs1994.java_template.entity.Permission;
-import com.github.zxs1994.java_template.mapper.PermissionMapper;
+import com.github.zxs1994.java_template.entity.SysPermission;
+import com.github.zxs1994.java_template.mapper.SysPermissionMapper;
 
 import com.github.zxs1994.java_template.util.CurrentUser;
 import jakarta.servlet.FilterChain;
@@ -17,18 +17,16 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class PermissionFilter extends OncePerRequestFilter {
+public class SysPermissionFilter extends OncePerRequestFilter {
 
-    private final PermissionMapper permissionMapper;
-    private final JwtUtils jwtUtils;
+    private final SysPermissionMapper sysPermissionMapper;
     private final SecurityProperties securityProperties;
     private final AntPathMatcher matcher = new AntPathMatcher();
 
-    public PermissionFilter(PermissionMapper permissionMapper,
-                            JwtUtils jwtUtils,
-                            SecurityProperties securityProperties) {
-        this.permissionMapper = permissionMapper;
-        this.jwtUtils = jwtUtils;
+    public SysPermissionFilter(SysPermissionMapper sysPermissionMapper,
+                               JwtUtils jwtUtils,
+                               SecurityProperties securityProperties) {
+        this.sysPermissionMapper = sysPermissionMapper;
         this.securityProperties = securityProperties;
     }
 
@@ -54,17 +52,17 @@ public class PermissionFilter extends OncePerRequestFilter {
         Long userId = CurrentUser.getId();
 
         // 3️⃣ 查询用户拥有的权限
-        List<Permission> userPermissions = permissionMapper.selectByUserId(userId);
+        List<SysPermission> userPermissions = sysPermissionMapper.selectByUserId(userId);
 
         // System.out.println(userPermissions.toString());
 
         // 先过滤 method
-        List<Permission> filteredByMethod = userPermissions.stream()
+        List<SysPermission> filteredByMethod = userPermissions.stream()
                 .filter(p -> p.getMethod().equals("*") || p.getMethod().equalsIgnoreCase(method))
                 .toList();
 
         // 匹配权限：全局 / 模块总开关 / 动态接口 / 静态接口 都统一用 matcher
-        Permission matched = filteredByMethod.stream()
+        SysPermission matched = filteredByMethod.stream()
                 .filter(p -> p.getPath().equals("*") && p.getModule().equals("ALL") // 全局权限
                         || matcher.match(p.getPath(), path))                        // 其他接口
                 .findFirst()

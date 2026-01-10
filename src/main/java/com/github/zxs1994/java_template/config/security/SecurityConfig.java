@@ -5,7 +5,7 @@ import com.github.zxs1994.java_template.config.jwt.JwtAuthenticationFilter;
 import com.github.zxs1994.java_template.config.jwt.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.github.zxs1994.java_template.mapper.UserMapper;
+import com.github.zxs1994.java_template.mapper.SysUserMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
@@ -31,14 +31,14 @@ public class SecurityConfig {
 
     private final SecurityProperties securityProperties;
 
-    private final PermissionFilter permissionFilter;
+    private final SysPermissionFilter sysPermissionFilter;
 
-    private final UserMapper userMapper;
+    private final SysUserMapper sysUserMapper;
 
-    public SecurityConfig(SecurityProperties securityProperties, PermissionFilter permissionFilter, UserMapper userMapper) {
+    public SecurityConfig(SecurityProperties securityProperties, SysPermissionFilter sysPermissionFilter, SysUserMapper sysUserMapper) {
         this.securityProperties = securityProperties;
-        this.permissionFilter = permissionFilter;
-        this.userMapper = userMapper;
+        this.sysPermissionFilter = sysPermissionFilter;
+        this.sysUserMapper = sysUserMapper;
     }
 
     @Bean
@@ -52,7 +52,7 @@ public class SecurityConfig {
 
         // 创建 JWT 过滤器实例
         JwtAuthenticationFilter jwtFilter =
-                new JwtAuthenticationFilter(jwtUtils, objectMapper, userMapper);
+                new JwtAuthenticationFilter(jwtUtils, objectMapper, sysUserMapper);
 
         http
                 // 禁用 CSRF，因为我们用 JWT
@@ -71,7 +71,7 @@ public class SecurityConfig {
                 // JWT 过滤器放在 UsernamePasswordAuthenticationFilter 前
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
-                .addFilterAfter(permissionFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(sysPermissionFilter, JwtAuthenticationFilter.class)
 
                 // 返回 JSON 而不是默认 HTML 登录页
                 .exceptionHandling(ex -> ex
