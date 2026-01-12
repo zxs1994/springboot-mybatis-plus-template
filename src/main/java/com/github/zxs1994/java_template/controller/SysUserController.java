@@ -2,11 +2,12 @@ package com.github.zxs1994.java_template.controller;
 
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.SysUser;
-import com.github.zxs1994.java_template.enums.SourceType;
 import com.github.zxs1994.java_template.service.ISysUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.util.StringUtils;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,26 +48,23 @@ public class SysUserController {
 
     @PostMapping
     @Operation(summary = "新增用户")
-    public SysUser save(@RequestBody SysUser sysUser) {
+    public Long save(@RequestBody SysUser sysUser) {
         sysUser.setTokenVersion(0);
-        sysUser.setSource(SourceType.USER.getCode());
         boolean success = sysUserService.save(sysUser);
         if (!success) {
             throw new BizException(400, "新增用户失败");
         }
-        return sysUser;
+        return sysUser.getId();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新用户")
-    public SysUser update(@PathVariable Long id, @RequestBody SysUser sysUser) {
+    public void update(@PathVariable Long id, @RequestBody SysUser sysUser) {
         sysUser.setId(id);
-        sysUser.setTokenVersion(null);
         boolean success = sysUserService.updateById(sysUser);
         if (!success) {
             throw new BizException(400, "更新用户失败");
         }
-        return sysUser;
     }
 
     @DeleteMapping("/{id}")
@@ -81,7 +79,12 @@ public class SysUserController {
     @GetMapping("/page")
     @Operation(summary = "用户列表(分页)")
     public Page<SysUser> page(@RequestParam(defaultValue = "1") long page,
-                                 @RequestParam(defaultValue = "10") long size) {
-        return sysUserService.page(new Page<>(page, size));
+                              @RequestParam(defaultValue = "10") long size,
+                              @RequestParam(required = false) String name) {
+        QueryWrapper<SysUser> qw = new QueryWrapper<>();
+        if (StringUtils.hasText(name)) {
+            qw.like("name", name);
+        }
+        return sysUserService.page(new Page<>(page, size), qw);
     }
 }

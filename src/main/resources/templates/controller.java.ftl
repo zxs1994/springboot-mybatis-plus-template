@@ -1,17 +1,4 @@
 <#-- templates/controller.java.ftl -->
-package ${basePackage}.controller;
-
-import ${basePackage}.common.BizException;
-import ${basePackage}.entity.${entity};
-import ${basePackage}.service.I${entity}Service;
-import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import java.util.List;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-
 <#-- 如果 entityLower 没传，就用 entity 名称首字母小写 -->
 <#assign entityLower = entity?uncap_first>
 <#-- 先拿到 comment，如果没有就用实体名 -->
@@ -25,8 +12,33 @@ import io.swagger.v3.oas.annotations.Operation;
 <#if entityComment?ends_with("表")>
     <#assign entityComment = entityComment?substring(0, entityComment?length - 1)>
 </#if>
+<#-- 短的表名 -->
 <#assign commentParts = entityComment?split("--")>
 <#assign entityShortComment = commentParts[commentParts?size - 1]>
+<#-- 是否存在 name 字段 -->
+<#assign hasNameField = false>
+<#list table.fields as field>
+    <#if field.name == "name">
+        <#assign hasNameField = true>
+    </#if>
+</#list>
+package ${basePackage}.controller;
+
+import ${basePackage}.common.BizException;
+import ${basePackage}.entity.${entity};
+import ${basePackage}.service.I${entity}Service;
+import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.util.List;
+<#if hasNameField>
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.util.StringUtils;
+</#if>
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 /**
  * <p>
  * ${table.comment} Controller 控制器
@@ -62,23 +74,22 @@ public class ${entity}Controller {
 
     @PostMapping
     @Operation(summary = "新增${entityShortComment}")
-    public ${entity} save(@RequestBody ${entity} ${entityLower}) {
+    public Long save(@RequestBody ${entity} ${entityLower}) {
         boolean success = ${entityLower}Service.save(${entityLower});
         if (!success) {
             throw new BizException(400, "新增${entityShortComment}失败");
         }
-        return ${entityLower};
+        return ${entityLower}.getId();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新${entityShortComment}")
-    public ${entity} update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
+    public void update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
         ${entityLower}.setId(id);
         boolean success = ${entityLower}Service.updateById(${entityLower});
         if (!success) {
             throw new BizException(400, "更新${entityShortComment}失败");
         }
-        return ${entityLower};
     }
 
     @DeleteMapping("/{id}")
@@ -94,7 +105,16 @@ public class ${entity}Controller {
     @GetMapping("/page")
     @Operation(summary = "${entityShortComment}列表(分页)")
     public Page<${entity}> page(@RequestParam(defaultValue = "1") long page,
-                                 @RequestParam(defaultValue = "10") long size) {
+                                 @RequestParam(defaultValue = "10") long size,
+                                 <#if hasNameField>@RequestParam(required = false) String name</#if>) {
+        <#if hasNameField>
+        QueryWrapper<${entity}> qw = new QueryWrapper<>();
+        if (StringUtils.hasText(name)) {
+            qw.like("name", name);
+        }
+        return ${entityLower}Service.page(new Page<>(page, size), qw);
+        <#else>
         return ${entityLower}Service.page(new Page<>(page, size));
+        </#if>
     }
 }

@@ -2,7 +2,6 @@ package com.github.zxs1994.java_template.controller;
 
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.SysUserRole;
-import com.github.zxs1994.java_template.enums.SourceType;
 import com.github.zxs1994.java_template.service.ISysUserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -47,24 +46,22 @@ public class SysUserRoleController {
 
     @PostMapping
     @Operation(summary = "新增用户-角色关联")
-    public SysUserRole save(@RequestBody SysUserRole sysUserRole) {
-        sysUserRole.setSource(SourceType.USER.getCode());
+    public Long save(@RequestBody SysUserRole sysUserRole) {
         boolean success = sysUserRoleService.save(sysUserRole);
         if (!success) {
             throw new BizException(400, "新增用户-角色关联失败");
         }
-        return sysUserRole;
+        return sysUserRole.getId();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新用户-角色关联")
-    public SysUserRole update(@PathVariable Long id, @RequestBody SysUserRole sysUserRole) {
+    public void update(@PathVariable Long id, @RequestBody SysUserRole sysUserRole) {
         sysUserRole.setId(id);
         boolean success = sysUserRoleService.updateById(sysUserRole);
         if (!success) {
             throw new BizException(400, "更新用户-角色关联失败");
         }
-        return sysUserRole;
     }
 
     @DeleteMapping("/{id}")

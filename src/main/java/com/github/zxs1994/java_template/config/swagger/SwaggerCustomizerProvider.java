@@ -9,6 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.stereotype.Component;
+import com.github.zxs1994.java_template.common.ApiResponse;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -21,35 +25,49 @@ public class SwaggerCustomizerProvider {
      */
     OperationCustomizer apiResponseCustomizer() {
         return (operation, handlerMethod) -> {
+            // 1️⃣ NoApiWrap
             boolean noWrap = handlerMethod.hasMethodAnnotation(NoApiWrap.class)
                     || handlerMethod.getBeanType().isAnnotationPresent(NoApiWrap.class);
 
             if (noWrap) return operation;
 
+            // 2️⃣ 已经返回 ApiResponse<T>
             Class<?> returnType = handlerMethod.getMethod().getReturnType();
-            if (io.swagger.v3.oas.models.responses.ApiResponse.class
-                    .isAssignableFrom(returnType)) {
+            if (ApiResponse.class.isAssignableFrom(returnType)) {
                 return operation;
             }
 
+            // 3️⃣ void / Void 也要包
+            boolean isVoid =
+                    returnType == void.class || returnType == Void.class;
+
             io.swagger.v3.oas.models.responses.ApiResponse response200 =
                     operation.getResponses().get("200");
-
-            if (response200 != null && response200.getContent() != null) {
-                response200.getContent().forEach((mediaType, media) -> {
-                    Schema<?> originalSchema = media.getSchema();
-                    if (originalSchema == null) return;
-
-                    Schema<?> wrapper = new ObjectSchema()
-                            .addProperty("success", new BooleanSchema().example(true))
-                            .addProperty("code", new IntegerSchema().example(200))
-                            .addProperty("data", originalSchema)
-                            .addProperty("msg", new StringSchema().example("ok"))
-                            .addProperty("version", new StringSchema().example("1.0.0"));
-
-                    media.setSchema(wrapper);
-                });
+            if (response200 == null) {
+                return operation;
             }
+
+            // 1️⃣ 如果没有 content（void / null）
+            if (response200.getContent() == null || response200.getContent().isEmpty()) {
+
+                MediaType mediaType = new MediaType();
+                mediaType.setSchema(buildWrapperSchema(null));
+
+                Content content = new Content();
+                content.addMediaType("application/json", mediaType);
+
+                response200.setContent(content);
+                return operation;
+            }
+
+//            System.out.println((response200.getContent()) + " "  + returnType);
+
+            // 2️⃣ 有 content（正常返回）
+            response200.getContent().forEach((type, media) -> {
+                Schema<?> originalSchema = media.getSchema();
+                media.setSchema(buildWrapperSchema(originalSchema));
+            });
+
             return operation;
         };
     }
@@ -67,5 +85,34 @@ public class SwaggerCustomizerProvider {
                 );
             }
         });
+    }
+
+    private Schema<?> buildWrapperSchema(Schema<?> dataSchema) {
+        ObjectSchema wrapper = (ObjectSchema) new ObjectSchema()
+                .addProperty("success", new BooleanSchema().example(true))
+                .addProperty("code", new IntegerSchema().example(200));
+
+        if (dataSchema != null) {
+            wrapper.addProperty("data", dataSchema);
+        } else {
+            wrapper.addProperty("data", new Schema<>().nullable(true));
+            // 👇 强制 example
+            wrapper.setExample(buildVoidExample());
+        }
+        // 保持字段顺序的洁癖
+        wrapper.addProperty("msg", new StringSchema().example("ok"))
+               .addProperty("version", new StringSchema().example("1.0.0"));
+
+        return wrapper;
+    }
+    private Map<String, Object> buildVoidExample() {
+        Map<String, Object> example = new LinkedHashMap<>();
+        example.put("success", true);
+        example.put("code", 200);
+        example.put("data", null);
+        example.put("msg", "ok");
+        example.put("version", "1.0.0");
+
+        return example;
     }
 }

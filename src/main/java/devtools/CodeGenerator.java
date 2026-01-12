@@ -20,7 +20,7 @@ public class CodeGenerator {
 //        System.out.println("数据库 密码: " + password);
 //        System.out.println("项目基础包: " + basePackage);
 
-        String tableName = "sys__permission";
+        String tableName = "sys__user";
         FastAutoGenerator.create(url, username, password)
                 .globalConfig(builder -> builder
                         .author("xusheng")
@@ -38,7 +38,7 @@ public class CodeGenerator {
 //                            .xml("mapper.xml")
                 )
                 .strategyConfig(builder -> builder
-//                         .addInclude(tableName)
+                         .addInclude(tableName)
 
                         .entityBuilder()
                             .enableTableFieldAnnotation() // ✅ 强烈推荐

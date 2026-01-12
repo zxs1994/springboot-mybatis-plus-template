@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 public class BaseEntity {
     @TableId(type = IdType.AUTO)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Schema(description = "主键", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "主键")
     private Long id;
 
     @Schema(description = "创建时间", accessMode = Schema.AccessMode.READ_ONLY)

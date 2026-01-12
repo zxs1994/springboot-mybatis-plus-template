@@ -2,11 +2,12 @@ package com.github.zxs1994.java_template.controller;
 
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.SysRole;
-import com.github.zxs1994.java_template.enums.SourceType;
 import com.github.zxs1994.java_template.service.ISysRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.util.StringUtils;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,24 +48,22 @@ public class SysRoleController {
 
     @PostMapping
     @Operation(summary = "新增角色")
-    public SysRole save(@RequestBody SysRole sysRole) {
-        sysRole.setSource(SourceType.USER.getCode());
+    public Long save(@RequestBody SysRole sysRole) {
         boolean success = sysRoleService.save(sysRole);
         if (!success) {
             throw new BizException(400, "新增角色失败");
         }
-        return sysRole;
+        return sysRole.getId();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新角色")
-    public SysRole update(@PathVariable Long id, @RequestBody SysRole sysRole) {
+    public void update(@PathVariable Long id, @RequestBody SysRole sysRole) {
         sysRole.setId(id);
         boolean success = sysRoleService.updateById(sysRole);
         if (!success) {
             throw new BizException(400, "更新角色失败");
         }
-        return sysRole;
     }
 
     @DeleteMapping("/{id}")
@@ -79,7 +78,12 @@ public class SysRoleController {
     @GetMapping("/page")
     @Operation(summary = "角色列表(分页)")
     public Page<SysRole> page(@RequestParam(defaultValue = "1") long page,
-                                 @RequestParam(defaultValue = "10") long size) {
-        return sysRoleService.page(new Page<>(page, size));
+                              @RequestParam(defaultValue = "10") long size,
+                              @RequestParam(required = false) String name) {
+        QueryWrapper<SysRole> qw = new QueryWrapper<>();
+        if (StringUtils.hasText(name)) {
+            qw.like("name", name);
+        }
+        return sysRoleService.page(new Page<>(page, size), qw);
     }
 }

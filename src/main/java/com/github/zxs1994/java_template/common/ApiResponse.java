@@ -77,7 +77,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(500, false, null, msg);
     }
 
-    /** 失败，默认状态码 500 */
+    /** 失败，默认消息 */
     public static <T> ApiResponse<T> fail(int code) {
         return new ApiResponse<>(code, false, null, getMsgByStatus(code));
     }

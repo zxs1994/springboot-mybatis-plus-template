@@ -8,7 +8,7 @@ CREATE TABLE `sys__user` (
   `name` VARCHAR(255) NOT NULL COMMENT '用户名',
   `password` VARCHAR(255) NOT NULL COMMENT '密码',
   `token_version` INT NOT NULL DEFAULT 0 COMMENT 'token版本',
-  `source` VARCHAR(20) NOT NULL DEFAULT 'SYSTEM' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
+  `source` VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除',
@@ -23,7 +23,7 @@ CREATE TABLE `sys__role` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` VARCHAR(50) NOT NULL COMMENT '角色名',
   `code` VARCHAR(50) NOT NULL COMMENT '角色编码',
-  `source` VARCHAR(20) NOT NULL DEFAULT 'SYSTEM' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
+  `source` VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除',
@@ -62,7 +62,7 @@ CREATE TABLE `sys__user_role` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
   `role_id` BIGINT NOT NULL COMMENT '角色ID',
-  `source` VARCHAR(20) NOT NULL DEFAULT 'SYSTEM' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
+  `source` VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -78,7 +78,7 @@ CREATE TABLE `sys__role_permission` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
   `role_id` BIGINT NOT NULL COMMENT '角色ID',
   `permission_id` BIGINT NOT NULL COMMENT '权限ID',
-  `source` VARCHAR(20) NOT NULL DEFAULT 'SYSTEM' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
+  `source` VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '数据来源：SYSTEM=系统内置，USER=用户创建',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -89,9 +89,9 @@ CREATE TABLE `sys__role_permission` (
 -- ----------------------------
 -- 初始化系统数据
 -- ----------------------------
-INSERT INTO `sys__user` (`email`, `name`, `password`) VALUES ('admin@qq.com', 'admin', '$2a$10$0.RvF.iEnw4grHb.WkAfdOi7qeKPyIfXDIAtrlZZk6QtfCNsRugMO');
-INSERT INTO `sys__role` (`name`, `code`) VALUES ('超级管理员', 'SUPER_ADMIN');
-INSERT INTO `sys__user_role` (`user_id`, `role_id`) VALUES (1, 1);
+INSERT INTO `sys__user` (`email`, `name`, `password`, `source`) VALUES ('admin@qq.com', 'admin', '$2a$10$0.RvF.iEnw4grHb.WkAfdOi7qeKPyIfXDIAtrlZZk6QtfCNsRugMO', 'SYSTEM');
+INSERT INTO `sys__role` (`name`, `code`, `source`) VALUES ('超级管理员', 'SUPER_ADMIN', 'SYSTEM');
 INSERT INTO `sys__permission` (`name`, `code`, `method`, `path`, `module`, `module_name`) VALUES("全局模块", "ALL", "*", "*", "ALL", "全局");
-INSERT INTO `sys__role_permission` (`role_id`, `permission_id`) VALUES (1, 1);
+INSERT INTO `sys__user_role` (`user_id`, `role_id`, `source`) VALUES (1, 1, 'SYSTEM');
+INSERT INTO `sys__role_permission` (`role_id`, `permission_id`, `source`) VALUES (1, 1, 'SYSTEM');
 

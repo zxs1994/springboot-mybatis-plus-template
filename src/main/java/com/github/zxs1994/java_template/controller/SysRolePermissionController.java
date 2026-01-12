@@ -46,23 +46,22 @@ public class SysRolePermissionController {
 
     @PostMapping
     @Operation(summary = "新增角色-权限关联")
-    public SysRolePermission save(@RequestBody SysRolePermission sysRolePermission) {
+    public Long save(@RequestBody SysRolePermission sysRolePermission) {
         boolean success = sysRolePermissionService.save(sysRolePermission);
         if (!success) {
             throw new BizException(400, "新增角色-权限关联失败");
         }
-        return sysRolePermission;
+        return sysRolePermission.getId();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新角色-权限关联")
-    public SysRolePermission update(@PathVariable Long id, @RequestBody SysRolePermission sysRolePermission) {
+    public void update(@PathVariable Long id, @RequestBody SysRolePermission sysRolePermission) {
         sysRolePermission.setId(id);
         boolean success = sysRolePermissionService.updateById(sysRolePermission);
         if (!success) {
             throw new BizException(400, "更新角色-权限关联失败");
         }
-        return sysRolePermission;
     }
 
     @DeleteMapping("/{id}")
