@@ -56,52 +56,6 @@ public class ${entity}Controller {
 
     private final I${entity}Service ${entityLower}Service;
 
-    @GetMapping
-    @Operation(summary = "${entityShortComment}列表")
-    public List<${entity}> list() {
-        return ${entityLower}Service.list();
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "获取${entityShortComment}")
-    public ${entity} get(@PathVariable Long id) {
-        ${entity} entityLower = ${entityLower}Service.getById(id);
-        if (entityLower == null) {
-            throw new BizException(404, "${entityShortComment}未找到");
-        }
-        return entityLower;
-    }
-
-    @PostMapping
-    @Operation(summary = "新增${entityShortComment}")
-    public Long save(@RequestBody ${entity} ${entityLower}) {
-        boolean success = ${entityLower}Service.save(${entityLower});
-        if (!success) {
-            throw new BizException(400, "新增${entityShortComment}失败");
-        }
-        return ${entityLower}.getId();
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "更新${entityShortComment}")
-    public void update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
-        ${entityLower}.setId(id);
-        boolean success = ${entityLower}Service.updateById(${entityLower});
-        if (!success) {
-            throw new BizException(400, "更新${entityShortComment}失败");
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "删除${entityShortComment}")
-    public void delete(@PathVariable Long id) {
-        boolean success = ${entityLower}Service.removeById(id);
-        if (!success) {
-            throw new BizException(400, "删除${entityShortComment}失败");
-        }
-    }
-
-    <#-- 分页接口 -->
     @GetMapping("/page")
     @Operation(summary = "${entityShortComment}列表(分页)")
     public Page<${entity}> page(@RequestParam(defaultValue = "1") long page,
@@ -117,4 +71,50 @@ public class ${entity}Controller {
         return ${entityLower}Service.page(new Page<>(page, size));
         </#if>
     }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "获取${entityShortComment}")
+    public ${entity} getById(@PathVariable Long id) {
+        ${entity} ${entityLower} = ${entityLower}Service.getById(id);
+        if (${entityLower} == null) {
+            throw new BizException(404, "${entityShortComment}未找到");
+        }
+        return ${entityLower};
+    }
+
+    @PostMapping
+    @Operation(summary = "新增${entityShortComment}")
+    public Long save(@RequestBody ${entity} ${entityLower}) {
+        boolean success = ${entityLower}Service.save(${entityLower});
+        if (!success) {
+            throw new BizException(400, "新增${entityShortComment}失败");
+        }
+        return ${entityLower}.getId();
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "更新${entityShortComment}")
+    public void updateById(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
+        ${entityLower}.setId(id);
+        boolean success = ${entityLower}Service.updateById(${entityLower});
+        if (!success) {
+            throw new BizException(400, "更新${entityShortComment}失败");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除${entityShortComment}")
+    public void removeById(@PathVariable Long id) {
+        boolean success = ${entityLower}Service.removeById(id);
+        if (!success) {
+            throw new BizException(400, "删除${entityShortComment}失败");
+        }
+    }
+
+    @GetMapping
+    @Operation(summary = "${entityShortComment}列表")
+    public List<${entity}> list() {
+        return ${entityLower}Service.list();
+    }
+
 }

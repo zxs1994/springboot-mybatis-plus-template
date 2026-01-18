@@ -1,11 +1,10 @@
-package com.github.zxs1994.java_template.service;
+package com.github.zxs1994.java_template.common;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.enums.SourceType;
 
 import java.io.Serializable;

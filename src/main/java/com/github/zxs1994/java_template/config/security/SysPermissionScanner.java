@@ -59,9 +59,7 @@ public class SysPermissionScanner {
         // 扫描前统一标记为已删除
         sysPermissionMapper.update(
                 null,
-                new UpdateWrapper<SysPermission>()
-                        .ne("module", "ALL")
-                        .set("del", 1)
+                new UpdateWrapper<SysPermission>().set("del", 1)
         );
 
         // 初始化权限, 只会插入一次
@@ -98,21 +96,33 @@ public class SysPermissionScanner {
             if (paths.length == 0) continue;
             String[] moduleNames = resolveModuleHierarchy(TagName, "--");
 
-            String currentPath = "";
+            StringBuilder pathBuilder = new StringBuilder();
+            StringBuilder codeBuilder = new StringBuilder();
+
             Long parentId = 1L; // 根模块
+
             for (int i = 0; i < paths.length; i++) {
 
-                String module = paths[i].toUpperCase();
+                String segment = paths[i];
+
                 String moduleName =
                         moduleNames.length > i
                                 ? moduleNames[i]
-                                : module;   // fallback;
+                                : segment; // fallback
 
-                currentPath += "/" + paths[i];
+                // /sys → /sys/user → /sys/user/role
+                pathBuilder.append("/").append(segment);
+
+                // sys → sys:user → sys:user:role
+                if (!codeBuilder.isEmpty()) {
+                    codeBuilder.append(":");
+                }
+                codeBuilder.append(segment);
+
                 parentId = initModulePermission(
-                        module,
+                        codeBuilder.toString(),
                         moduleName,
-                        PathUtils.normalize(currentPath, "**"),
+                        PathUtils.normalize(pathBuilder.toString(), "**"),
                         parentId
                 );
             }
@@ -137,7 +147,7 @@ public class SysPermissionScanner {
                         if (!op.summary().isEmpty()) name = op.summary();
                     }
 
-                    insertIfAbsent(name, code, mapping.method, fullPath, module, moduleNames[moduleNames.length - 1], parentId);
+                    insertIfAbsent(name, code, mapping.method, fullPath, moduleNames[moduleNames.length - 1], parentId);
                 }
             }
         }
@@ -148,11 +158,11 @@ public class SysPermissionScanner {
     /* -------------------- 辅助方法 -------------------- */
 
     private void initGlobalPermissions() {
-        insertIfAbsent("全局模块", "ALL", "*", "/**", "ALL", "全局", null);
-        insertIfAbsent("全局查看", "ALL_GET", "GET", "/**", "ALL", "全局", 1L);
-        insertIfAbsent("全局创建", "ALL_POST", "POST", "/**", "ALL", "全局", 1L);
-        insertIfAbsent("全局修改", "ALL_PUT", "PUT", "/**", "ALL", "全局", 1L);
-        insertIfAbsent("全局删除", "ALL_DELETE", "DELETE", "/**", "ALL", "全局", 1L);
+        insertIfAbsent("全局模块", "ALL", "*", "/**", "全局", null);
+        insertIfAbsent("全局查看", "ALL_GET", "GET", "/**", "全局", 1L);
+        insertIfAbsent("全局创建", "ALL_POST", "POST", "/**", "全局", 1L);
+        insertIfAbsent("全局修改", "ALL_PUT", "PUT", "/**", "全局", 1L);
+        insertIfAbsent("全局删除", "ALL_DELETE", "DELETE", "/**", "全局", 1L);
     }
 
     /**
@@ -166,13 +176,12 @@ public class SysPermissionScanner {
                 .toArray(String[]::new);
     }
 
-    private Long initModulePermission(String module, String moduleName, String path, Long parentId) {
+    private Long initModulePermission(String code, String moduleName, String path, Long parentId) {
         return insertIfAbsent(
                 moduleName + "模块",
-                module.toUpperCase(),
+                code,
                 "*",
                 path,
-                module.toUpperCase(),
                 moduleName,
                 parentId
         );
@@ -180,7 +189,7 @@ public class SysPermissionScanner {
 
     private Long insertIfAbsent(String name, String code,
                                 String method, String path,
-                                String module, String moduleName, Long parentId) {
+                                String moduleName, Long parentId) {
 
         SysPermission p = sysPermissionMapper.selectOne(
                 new QueryWrapper<SysPermission>()
@@ -198,7 +207,6 @@ public class SysPermissionScanner {
             p.setPath(path);
         }
         p.setName(name);
-        p.setModule(module);
         p.setModuleName(moduleName);
         p.setAuthLevel(level.getCode());
         p.setParentId(parentId);

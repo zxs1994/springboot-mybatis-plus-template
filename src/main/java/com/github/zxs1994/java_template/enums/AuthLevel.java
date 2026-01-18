@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum AuthLevel implements BaseEnum<Integer> {
 
-    NORMAL(0, "需要权限校验"),
+    NORMAL(0, "权限校验"),
     WHITELIST(1, "白名单"),
     LOGIN_ONLY(2, "登录即可");
 
@@ -16,6 +16,11 @@ public enum AuthLevel implements BaseEnum<Integer> {
     AuthLevel(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
+    }
+
+    @Override
+    public String getName() {
+        return this.name(); // ⭐ 直接用枚举名
     }
 
     public static AuthLevel fromCode(Integer code) {

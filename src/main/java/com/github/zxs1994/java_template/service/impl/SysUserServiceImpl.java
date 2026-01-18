@@ -1,18 +1,36 @@
 package com.github.zxs1994.java_template.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.zxs1994.java_template.common.BasePage;
 import com.github.zxs1994.java_template.common.BizException;
-import com.github.zxs1994.java_template.dto.LoginDTO;
-import com.github.zxs1994.java_template.vo.LoginVO;
+import com.github.zxs1994.java_template.dto.LoginDto;
+import com.github.zxs1994.java_template.dto.SysUserDto;
+import com.github.zxs1994.java_template.entity.SysRole;
+import com.github.zxs1994.java_template.entity.SysUserRole;
+import com.github.zxs1994.java_template.service.ISysUserRoleService;
+import com.github.zxs1994.java_template.util.CurrentUser;
+import com.github.zxs1994.java_template.vo.LoginVo;
 import com.github.zxs1994.java_template.entity.SysUser;
 import com.github.zxs1994.java_template.mapper.SysUserMapper;
 import com.github.zxs1994.java_template.service.ISysUserService;
 import com.github.zxs1994.java_template.config.security.jwt.JwtUtils;
-import com.github.zxs1994.java_template.service.SystemProtectService;
+import com.github.zxs1994.java_template.common.SystemProtectService;
+import com.github.zxs1994.java_template.vo.SysUserVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -28,9 +46,16 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
 
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final ISysUserRoleService sysUserRoleService;
 
-    public LoginVO login(LoginDTO req) {
-        System.out.println(req.toString());
+    @Override
+    public void logout() {
+        Long userId = CurrentUser.getId();
+        increaseTokenVersion(userId);
+    }
+
+    @Override
+    public LoginVo login(LoginDto req) {
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
         wrapper.eq("email", req.getEmail());
         SysUser sysUser = getOne(wrapper, false);
@@ -47,26 +72,60 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
         // 3️⃣ 生成 token
         String token = jwtUtils.generateToken(sysUser);
 
-        LoginVO res = new LoginVO();
+        LoginVo res = new LoginVo();
         res.setToken(token);
         return res;
     }
 
+    @Transactional
     @Override
-    public boolean save(SysUser sysUser) {
+    public Long save(SysUserDto dto) {
+
+        SysUser sysUser = new SysUser();
+        BeanUtils.copyProperties(dto, sysUser);
+
         validateEmail(sysUser.getEmail());
         checkEmailDuplicate(sysUser.getEmail(), null);
         validatePassword(sysUser.getPassword());
 
         sysUser.setPassword(passwordEncoder.encode(sysUser.getPassword()));
 
-        return super.save(sysUser);
+        super.save(sysUser);
+
+        Long userId = sysUser.getId();
+        List<Long> roleIds = dto.getRoleIds();
+
+        saveUserRoles(userId, roleIds);
+
+        return userId;
+    }
+
+    @Transactional
+    public boolean updateById(SysUserDto dto) {
+        Long userId = dto.getId();
+
+        // 1️⃣ 更新用户基本信息
+        SysUser user = new SysUser();
+        BeanUtils.copyProperties(dto, user);
+        updateById(user);
+
+        // 2️⃣ 删除旧角色关联
+        sysUserRoleService.remove(
+                new LambdaQueryWrapper<SysUserRole>()
+                        .eq(SysUserRole::getUserId, userId)
+        );
+
+        // 3️⃣ 新增新角色关联
+        List<Long> roleIds = dto.getRoleIds();
+        saveUserRoles(userId, roleIds);
+
+        return true;
     }
 
     @Override
     public boolean updateById(SysUser sysUser) {
-        sysUser.setPassword(null);
         String email = sysUser.getEmail();
+
         // 1️⃣ 校验 email
         if (email != null) {
             validateEmail(sysUser.getEmail());
@@ -82,6 +141,50 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
         }
 
         return super.updateById(sysUser);
+    }
+
+    @Override
+    public Page<SysUserVo> page(BasePage query){
+        // 1️⃣ 查询用户分页
+        Page<SysUser> userPage = super.page(new Page<>(query.getPage(), query.getSize()),
+                new QueryWrapper<SysUser>().like(StringUtils.hasText(query.getName()), "name", query.getName()));
+
+        List<Long> userIds = userPage.getRecords().stream()
+                .map(SysUser::getId)
+                .collect(Collectors.toList());
+
+        // 2️⃣ 查询用户角色（批量）
+        Map<Long, List<SysRole>> userRolesMap;
+        if (!userIds.isEmpty()) {
+            userRolesMap = sysUserRoleService.getRolesByUserIds(userIds);
+        } else {
+            userRolesMap = new HashMap<>();
+        }
+
+        // 3️⃣ 组装 DTO
+        List<SysUserVo> voList = userPage.getRecords().stream().map(u -> {
+            SysUserVo vo = new SysUserVo();
+            BeanUtils.copyProperties(u, vo);
+
+            // 设置角色对象列表
+            vo.setRoles(userRolesMap.getOrDefault(u.getId(), Collections.emptyList()));
+
+            // 设置角色 ID 列表
+            vo.setRoleIds(
+                    vo.getRoles().stream()
+                            .map(SysRole::getId)
+                            .collect(Collectors.toList())
+            );
+
+            return vo;
+        }).collect(Collectors.toList());
+
+        // 4️⃣ 返回分页
+        Page<SysUserVo> voPage = new Page<>();
+        BeanUtils.copyProperties(userPage, voPage, "records");
+        voPage.setRecords(voList);
+
+        return voPage;
     }
 
 
@@ -120,5 +223,25 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
                         .eq("id", userId)
                         .setSql("token_version = token_version + 1")
         );
+    }
+
+    /**
+     * 给用户批量更新角色关联
+     *
+     * @param userId 用户ID
+     * @param roleIds 角色ID列表
+     */
+    private void saveUserRoles(Long userId, List<Long> roleIds) {
+        if (roleIds != null && !roleIds.isEmpty()) {
+            List<SysUserRole> list = roleIds.stream()
+                    .map(roleId -> {
+                        SysUserRole sysUserRole = new SysUserRole();
+                        sysUserRole.setUserId(userId);
+                        sysUserRole.setRoleId(roleId);
+                        return sysUserRole;
+                    })
+                    .collect(Collectors.toList());
+            sysUserRoleService.saveBatch(list);
+        }
     }
 }

@@ -1,13 +1,14 @@
 package com.github.zxs1994.java_template.controller;
 
+import com.github.zxs1994.java_template.common.BasePage;
 import com.github.zxs1994.java_template.common.BizException;
+import com.github.zxs1994.java_template.dto.SysRoleDto;
 import com.github.zxs1994.java_template.entity.SysRole;
 import com.github.zxs1994.java_template.service.ISysRoleService;
+import com.github.zxs1994.java_template.vo.SysRoleVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.springframework.util.StringUtils;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,37 +31,38 @@ public class SysRoleController {
 
     private final ISysRoleService sysRoleService;
 
-    @GetMapping
-    @Operation(summary = "角色列表")
-    public List<SysRole> list() {
-        return sysRoleService.list();
+    @GetMapping("/page")
+    @Operation(summary = "角色列表(分页)")
+    public Page<SysRoleVo> page(BasePage query) {
+        return sysRoleService.page(query);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "获取角色")
-    public SysRole get(@PathVariable Long id) {
-        SysRole entityLower = sysRoleService.getById(id);
-        if (entityLower == null) {
+    public SysRole getById(@PathVariable Long id) {
+        SysRole sysRole = sysRoleService.getById(id);
+        if (sysRole == null) {
             throw new BizException(404, "角色未找到");
         }
-        return entityLower;
+        return sysRole;
     }
 
     @PostMapping
     @Operation(summary = "新增角色")
-    public Long save(@RequestBody SysRole sysRole) {
-        boolean success = sysRoleService.save(sysRole);
-        if (!success) {
+    public Long save(@RequestBody SysRoleDto dto) {
+
+        Long id = sysRoleService.save(dto);
+        if (id == null) {
             throw new BizException(400, "新增角色失败");
         }
-        return sysRole.getId();
+        return id;
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新角色")
-    public void update(@PathVariable Long id, @RequestBody SysRole sysRole) {
-        sysRole.setId(id);
-        boolean success = sysRoleService.updateById(sysRole);
+    public void updateById(@PathVariable Long id, @RequestBody SysRoleDto dto) {
+        dto.setId(id);
+        boolean success = sysRoleService.updateById(dto);
         if (!success) {
             throw new BizException(400, "更新角色失败");
         }
@@ -68,22 +70,17 @@ public class SysRoleController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除角色")
-    public void delete(@PathVariable Long id) {
+    public void removeById(@PathVariable Long id) {
         boolean success = sysRoleService.removeById(id);
         if (!success) {
-            throw new BizException(400, "删除用户失败");
+            throw new BizException(400, "删除角色失败");
         }
     }
 
-    @GetMapping("/page")
-    @Operation(summary = "角色列表(分页)")
-    public Page<SysRole> page(@RequestParam(defaultValue = "1") long page,
-                              @RequestParam(defaultValue = "10") long size,
-                              @RequestParam(required = false) String name) {
-        QueryWrapper<SysRole> qw = new QueryWrapper<>();
-        if (StringUtils.hasText(name)) {
-            qw.like("name", name);
-        }
-        return sysRoleService.page(new Page<>(page, size), qw);
+    @GetMapping
+    @Operation(summary = "角色列表")
+    public List<SysRole> list() {
+        return sysRoleService.list();
     }
+
 }

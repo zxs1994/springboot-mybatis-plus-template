@@ -17,6 +17,11 @@ public enum SourceType implements BaseEnum<String> {
         this.desc = desc;
     }
 
+    @Override
+    public String getName() {
+        return this.name(); // ⭐ 直接用枚举名
+    }
+
     public static SourceType fromCode(String code) {
         for (SourceType type : values()) {
             if (type.code.equals(code)) {

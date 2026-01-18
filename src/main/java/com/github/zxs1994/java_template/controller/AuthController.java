@@ -1,7 +1,7 @@
 package com.github.zxs1994.java_template.controller;
 
-import com.github.zxs1994.java_template.dto.LoginDTO;
-import com.github.zxs1994.java_template.vo.LoginVO;
+import com.github.zxs1994.java_template.dto.LoginDto;
+import com.github.zxs1994.java_template.vo.LoginVo;
 import com.github.zxs1994.java_template.service.ISysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,11 +26,14 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "用户登录")
-    public LoginVO login(@RequestBody LoginDTO req) {
+    public LoginVo login(@RequestBody LoginDto req) {
         return sysUserService.login(req);
     }
 
-    // 如果未来需要，可以加：
-    // @PostMapping("/logout") ...
-    // @PostMapping("/refresh-token") ...
+    @PostMapping("/logout")
+    @Operation(summary = "用户登出")
+    public void logout() {
+        sysUserService.logout();
+    }
+
 }

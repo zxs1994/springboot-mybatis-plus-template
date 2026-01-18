@@ -34,7 +34,9 @@ public class SysPermissionMatcher {
                 .findFirst()
                 .orElse(null);
 
+
         if (exact != null) {
+            System.out.println(exact.toString());
             return exact;
         }
 

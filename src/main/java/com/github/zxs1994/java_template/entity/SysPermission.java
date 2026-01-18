@@ -35,9 +35,6 @@ public class SysPermission extends BaseEntity {
     @Schema(description = "接口路径")
     private String path;
 
-    @Schema(description = "权限模块")
-    private String module;
-
     @Schema(description = "权限模块名称")
     private String moduleName;
 
@@ -46,9 +43,6 @@ public class SysPermission extends BaseEntity {
 
     @Schema(description = "父权限ID", example = "8088")
     private Long parentId;
-
-    @Schema(description = "排序")
-    private Integer sort;
 
     @Schema(description = "逻辑删除")
     private Boolean del;

@@ -1,7 +1,7 @@
 package com.github.zxs1994.java_template.controller;
 
 import com.github.zxs1994.java_template.common.BizException;
-import com.github.zxs1994.java_template.util.CurrentUser;
+import com.github.zxs1994.java_template.dto.SysPermissionDto;
 import com.github.zxs1994.java_template.vo.SysPermissionTreeNode;
 import com.github.zxs1994.java_template.entity.SysPermission;
 import com.github.zxs1994.java_template.service.ISysPermissionService;
@@ -32,54 +32,6 @@ public class SysPermissionController {
 
     private final ISysPermissionService sysPermissionService;
 
-    @GetMapping
-    @Operation(summary = "权限列表")
-    public List<SysPermission> list() {
-        return sysPermissionService.list();
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "获取权限")
-    public SysPermission get(@PathVariable Long id) {
-        SysPermission entityLower = sysPermissionService.getById(id);
-        if (entityLower == null) {
-            throw new BizException(404, "权限未找到");
-        }
-        return entityLower;
-    }
-
-//    @PostMapping
-//    @Operation(summary = "新增权限")
-//    public Long save(@RequestBody SysPermission sysPermission) {
-//        boolean success = sysPermissionService.save(sysPermission);
-//        if (!success) {
-//            throw new BizException(400, "新增权限失败");
-//        }
-//        return sysPermission.getId();
-//    }
-//
-    @PutMapping("/{id}")
-    @Operation(summary = "更新权限")
-    public void update(@PathVariable Long id, @RequestBody SysPermission sysPermission) {
-        // 只许改排序
-        SysPermission newSysPermission = new SysPermission();
-        newSysPermission.setId(id);
-        newSysPermission.setSort(sysPermission.getSort());
-        boolean success = sysPermissionService.updateById(newSysPermission);
-        if (!success) {
-            throw new BizException(400, "更新权限失败");
-        }
-    }
-//
-//    @DeleteMapping("/{id}")
-//    @Operation(summary = "删除权限")
-//    public void delete(@PathVariable Long id) {
-//        boolean success = sysPermissionService.removeById(id);
-//        if (!success) {
-//            throw new BizException(400, "删除权限失败");
-//        }
-//    }
-
     @GetMapping("/page")
     @Operation(summary = "权限列表(分页)")
     public Page<SysPermission> page(@RequestParam(defaultValue = "1") long page,
@@ -92,16 +44,26 @@ public class SysPermissionController {
         return sysPermissionService.page(new Page<>(page, size), qw);
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "获取权限")
+    public SysPermission getById(@PathVariable Long id) {
+        SysPermission sysPermission = sysPermissionService.getById(id);
+        if (sysPermission == null) {
+            throw new BizException(404, "权限未找到");
+        }
+        return sysPermission;
+    }
+
+    @GetMapping
+    @Operation(summary = "权限列表")
+    public List<SysPermission> list() {
+        return sysPermissionService.list();
+    }
+
     @GetMapping("tree")
     @Operation(summary = "权限树形数据")
     public List<SysPermissionTreeNode> tree() {
         return sysPermissionService.getPermissionTree();
     }
 
-    @GetMapping("codes")
-    @Operation(summary = "当前用户权限 code 列表")
-    public List<String> codesByUserId() {
-        Long userId = CurrentUser.getId(); // 你自己的获取方式
-        return sysPermissionService.getCodesByUserId(userId);
-    }
 }

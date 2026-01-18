@@ -44,7 +44,7 @@ springdoc:
     # false : 所有接口放在一个文档中
     group-enabled: true
 
-# 权限扫描开关（⚠️ 仅用于开发/初始化）
+# 权限扫描开关
 # true  ：启动时扫描 Controller 并同步权限到数据库（可能覆盖/恢复权限数据）
 # false ：不自动扫描，需手动触发权限同步（推荐）
 sys-permission:

@@ -1,9 +1,13 @@
 package com.github.zxs1994.java_template.service;
 
-import com.github.zxs1994.java_template.dto.LoginDTO;
-import com.github.zxs1994.java_template.vo.LoginVO;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.zxs1994.java_template.common.BasePage;
+import com.github.zxs1994.java_template.dto.LoginDto;
+import com.github.zxs1994.java_template.dto.SysUserDto;
+import com.github.zxs1994.java_template.vo.LoginVo;
 import com.github.zxs1994.java_template.entity.SysUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.github.zxs1994.java_template.vo.SysUserVo;
 
 /**
  * <p>
@@ -14,5 +18,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2026-01-10 01:41:52
  */
 public interface ISysUserService extends IService<SysUser> {
-    LoginVO login(LoginDTO req);
+    LoginVo login(LoginDto req);
+
+    void logout();
+
+    Long save(SysUserDto sysUser);
+
+    boolean updateById(SysUserDto sysUserDto);
+
+    Page<SysUserVo> page(BasePage query);
 }

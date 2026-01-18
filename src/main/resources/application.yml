@@ -20,7 +20,7 @@ security:
       - /common/**
       - /auth/**
     login-only-urls:
-      - /sys/codesByUserId
+      - /sys/user/info
       - /sys/profile
       - /sys/password
 

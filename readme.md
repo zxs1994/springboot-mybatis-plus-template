@@ -34,7 +34,7 @@
 > - 不会出现“表里有权限，接口不存在”的情况
 
 ![权限表设计](img/权限表.jpg "sys_permission 表结构")
-
+![编辑角色](编辑角色.jpg)
 ---
 
 ### 2️⃣ 权限校验基于 method + path
@@ -185,7 +185,7 @@
 │  │  │
 │  │  │     ├─ controller/                    # 🎯 REST API 控制器
 │  │  │
-│  │  │     ├─ dto/                           # 📦 请求参数 DTO（LoginDTO 等）
+│  │  │     ├─ dto/                           # 📦 请求参数 DTO（LoginDto 等）
 │  │  │
 │  │  │     ├─ entity/                        # 🧩 数据库实体（SysUser / SysRole / SysPermission）
 │  │  │
@@ -199,7 +199,7 @@
 │  │  │
 │  │  │     ├─ util/                          # 🛠️ 工具类（CurrentUser / EnumUtils 等）
 │  │  │
-│  │  │     └─ vo/                            # 🎁 返回给前端的数据结构（LoginVO 等）
+│  │  │     └─ vo/                            # 🎁 返回给前端的数据结构（LoginVo 等）
 │  │
 │  │  └─ resources
 │  │     ├─ application.yml                  # 主配置文件

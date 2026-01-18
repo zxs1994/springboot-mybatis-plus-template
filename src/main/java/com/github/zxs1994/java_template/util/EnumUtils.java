@@ -28,9 +28,10 @@ public class EnumUtils {
                     List<Map<String, Object>> list = new ArrayList<>();
 
                     for (Object e : constants) {
-                        BaseEnum<Object> base = (BaseEnum) e;
+                        BaseEnum<?> base = (BaseEnum<?>) e;
                         Map<String, Object> map = new HashMap<>();
                         map.put("code", base.getCode());
+                        map.put("name", base.getName());
                         map.put("desc", base.getDesc());
                         list.add(map);
                     }
