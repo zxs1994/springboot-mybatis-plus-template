@@ -127,7 +127,7 @@ VALUES
   (2, 1, 1, '研发部1', 'YF', '/1/2', 1, NULL),
   (3, 1, 1, '市场部1', 'SC', '/1/3', 2, NULL),
   (4, 2, 1, '前端组1', 'QD', '/1/2/4', 1, NULL),
-  (5, 2, 1, '后端组1', 'HQ', '/1/2/5', 2, NULL);
+  (5, 2, 1, '后端组1', 'HD', '/1/2/5', 2, NULL);
 
 -- 租户 2 的部门
 INSERT INTO `sys__dept` (`id`, `parent_id`, `tenant_id`, `name`, `code`, `path`, `sort`, `leader_id`)
@@ -136,7 +136,7 @@ VALUES
   (7, 6, 6, '研发部2', 'YF', '/6/7', 1, NULL),
   (8, 6, 6, '市场部2', 'SC', '/6/8', 2, NULL),
   (9, 7, 6, '前端组2', 'QD', '/6/7/9', 1, NULL),
-  (10, 7, 6, '后端组2', 'HQ', '/6/7/10', 2, NULL);
+  (10, 7, 6, '后端组2', 'HD', '/6/7/10', 2, NULL);
 
 -- 平台用户
 INSERT INTO `sys__user` (`id`, `email`, `name`, `password`, `source`) VALUES (1, 'admin@qq.com', 'admin', '$2a$10$0.RvF.iEnw4grHb.WkAfdOi7qeKPyIfXDIAtrlZZk6QtfCNsRugMO', 'SYSTEM');
