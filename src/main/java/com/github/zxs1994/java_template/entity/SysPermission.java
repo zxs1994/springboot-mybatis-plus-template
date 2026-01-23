@@ -8,13 +8,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import com.github.zxs1994.java_template.common.BaseEntity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 /**
  * <p>
  * 系统--权限表 实体
  * </p>
  *
  * @author xusheng
- * @since 2026-01-13 12:27:23
+ * @since 2026-01-22 19:50:06
  */
 
 @Data
@@ -22,6 +25,16 @@ import com.github.zxs1994.java_template.common.BaseEntity;
 @TableName("sys__permission")
 @Schema(description = "系统--权限表")
 public class SysPermission extends BaseEntity {
+
+    @TableId(type = IdType.AUTO)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "主键", example = "8088")
+    private Long id;
+
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "父权限ID", example = "8088")
+    private Long parentId;
 
     @Schema(description = "权限名")
     private String name;
@@ -38,13 +51,10 @@ public class SysPermission extends BaseEntity {
     @Schema(description = "权限模块名称")
     private String moduleName;
 
-    @Schema(description = "访问级别：0权限校验 1白名单")
+    @Schema(description = "访问级别：0权限校验 1白名单 2登录即可")
     private Integer authLevel;
 
-    @Schema(description = "父权限ID", example = "8088")
-    private Long parentId;
-
-    @Schema(description = "逻辑删除")
-    private Boolean del;
+    @Schema(description = "状态：1=启用，0=停用")
+    private Boolean status;
 
 }

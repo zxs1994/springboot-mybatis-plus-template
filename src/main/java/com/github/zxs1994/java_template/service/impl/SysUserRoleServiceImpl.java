@@ -1,12 +1,12 @@
 package com.github.zxs1994.java_template.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.zxs1994.java_template.entity.SysRole;
 import com.github.zxs1994.java_template.entity.SysUserRole;
 import com.github.zxs1994.java_template.mapper.SysRoleMapper;
 import com.github.zxs1994.java_template.mapper.SysUserRoleMapper;
 import com.github.zxs1994.java_template.service.ISysUserRoleService;
-import com.github.zxs1994.java_template.common.SystemProtectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class SysUserRoleServiceImpl extends SystemProtectService<SysUserRoleMapper, SysUserRole> implements ISysUserRoleService {
+public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUserRole> implements ISysUserRoleService {
 
     private final SysUserRoleMapper sysUserRoleMapper;
     private final SysRoleMapper sysRoleMapper;

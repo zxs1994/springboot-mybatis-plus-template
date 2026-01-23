@@ -27,7 +27,7 @@ public interface SysPermissionMapper extends BaseMapper<SysPermission> {
         JOIN sys__role_permission rp ON rp.permission_id = p.id
         JOIN sys__user_role ur ON ur.role_id = rp.role_id
         WHERE ur.user_id = #{userId}
-          AND p.del = 0
+          AND p.status = 1
         """)
     List<SysPermission> selectByUserId(@Param("userId") Long userId);
 }

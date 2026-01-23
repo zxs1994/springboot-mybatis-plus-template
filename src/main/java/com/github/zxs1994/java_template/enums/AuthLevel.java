@@ -6,21 +6,19 @@ import lombok.Getter;
 @Getter
 public enum AuthLevel implements BaseEnum<Integer> {
 
-    NORMAL(0, "权限校验"),
-    WHITELIST(1, "白名单"),
-    LOGIN_ONLY(2, "登录即可");
+    NORMAL(0, "权限校验", "blue"),
+    WHITELIST(1, "白名单", "green"),
+    LOGIN_ONLY(2, "登录即可", "cyan"),
+    PLATFORM_ONLY(3, "仅平台用户", "red");
 
     private final Integer code;
     private final String desc;
+    private final String color;
 
-    AuthLevel(Integer code, String desc) {
+    AuthLevel(Integer code, String desc, String color) {
         this.code = code;
         this.desc = desc;
-    }
-
-    @Override
-    public String getName() {
-        return this.name(); // ⭐ 直接用枚举名
+        this.color = color;
     }
 
     public static AuthLevel fromCode(Integer code) {
@@ -32,4 +30,20 @@ public enum AuthLevel implements BaseEnum<Integer> {
 //        return NORMAL;
         throw new IllegalArgumentException("未知 AuthLevel: " + code);
     }
+
+    /** 是否需要登录 */
+    public boolean needLogin() {
+        return this != WHITELIST;
+    }
+
+    /** 是否需要权限校验 */
+    public boolean needPermissionCheck() {
+        return this == NORMAL || this == PLATFORM_ONLY;
+    }
+
+    /** 是否只对平台用户可见 */
+    public boolean platformOnly() {
+        return this == PLATFORM_ONLY;
+    }
+
 }

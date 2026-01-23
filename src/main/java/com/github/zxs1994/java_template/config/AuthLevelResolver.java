@@ -15,21 +15,28 @@ public class AuthLevelResolver {
 
     public AuthLevel resolve(String path) {
 
-        // 1️⃣ 白名单
+        // 白名单
         for (String p : securityProperties.getWhitelistUrls()) {
             if (antPathMatcher.match(p, path)) {
                 return AuthLevel.WHITELIST;
             }
         }
 
-        // 2️⃣ 登录即可
+        // 登录即可
         for (String p : securityProperties.getLoginOnlyUrls()) {
             if (antPathMatcher.match(p, path)) {
                 return AuthLevel.LOGIN_ONLY;
             }
         }
 
-        // 3️⃣ 默认
+        // 仅平台
+        for (String p : securityProperties.getPlatformOnlyUrls()) {
+            if (antPathMatcher.match(p, path)) {
+                return AuthLevel.PLATFORM_ONLY;
+            }
+        }
+
+        // 默认
         return AuthLevel.NORMAL;
     }
 }

@@ -2,8 +2,8 @@ package com.github.zxs1994.java_template.service.impl;
 
 import com.github.zxs1994.java_template.cache.SysPermissionCache;
 import com.github.zxs1994.java_template.config.AuthLevelResolver;
-import com.github.zxs1994.java_template.enums.AuthLevel;
 import com.github.zxs1994.java_template.util.SysPermissionMatcher;
+import com.github.zxs1994.java_template.util.TreeUtils;
 import com.github.zxs1994.java_template.vo.SysPermissionTreeNode;
 import com.github.zxs1994.java_template.entity.SysPermission;
 import com.github.zxs1994.java_template.mapper.SysPermissionMapper;
@@ -29,36 +29,22 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
 
     private final SysPermissionMapper sysPermissionMapper;
     private final SysPermissionCache sysPermissionCache;
-    private final AuthLevelResolver authLevelResolver;
 
     @Override
-    public List<SysPermissionTreeNode> getPermissionTree() {
+    public List<SysPermissionTreeNode> getTree() {
 
-        // 1️⃣ 查询所有权限
-        List<SysPermission> permissions = sysPermissionCache.listAll();
+        // 1️⃣ 查询所有可选择的权限
+        List<SysPermission> allPermissions = sysPermissionCache.listAssignablePermissionsForCurrentUser();
 
-        // 2️⃣ 转成 nodeMap（id -> node）
-        Map<Long, SysPermissionTreeNode> nodeMap = getTreeNodeMap(permissions);
+        // 2️⃣ 转成树节点
+        List<SysPermissionTreeNode> nodes = allPermissions.stream().map(p -> {
+            SysPermissionTreeNode node = new SysPermissionTreeNode();
+            BeanUtils.copyProperties(p, node);
+            return node;
+        }).toList();
 
-        // 3️⃣ 组装成树
-        List<SysPermissionTreeNode> roots = new ArrayList<>();
-
-        for (SysPermission p : permissions) {
-            SysPermissionTreeNode current = nodeMap.get(p.getId());
-
-            Long parentId = p.getParentId();
-            if (parentId == null || parentId == 0) {
-                // 顶级节点
-                roots.add(current);
-            } else {
-                SysPermissionTreeNode parent = nodeMap.get(parentId);
-                if (parent != null) {
-                    parent.getChildren().add(current);
-                }
-            }
-        }
-
-        return roots;
+        // 3️⃣ 构建树，根节点 parent_id = null
+        return TreeUtils.buildTree(nodes);
     }
 
     @Override
@@ -68,7 +54,7 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
                 sysPermissionMapper.selectByUserId(userId);
 
         List<SysPermission> allPermissions =
-                sysPermissionCache.listAll();
+                sysPermissionCache.listVisiblePermissionsForCurrentUser();
 
         Set<String> result = new HashSet<>();
 
@@ -79,16 +65,12 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
                     continue;
                 }
 
-                AuthLevel authLevel = authLevelResolver.resolve(perm.getPath());
-                if (authLevel == AuthLevel.WHITELIST || authLevel == AuthLevel.LOGIN_ONLY) {
-                    // permission.code = 授权能力 不是 是否可使用功能, 所以这些code不用给前端
-                    continue;
-                }
-
+                // permission.code = 授权能力 不是 是否可使用功能, 所以权限code才给前端
                 // ⭐ 核心：权限规则匹配
                 if (SysPermissionMatcher.cover(userPerm, perm)) {
                     result.add(perm.getCode());
                 }
+
             }
         }
 

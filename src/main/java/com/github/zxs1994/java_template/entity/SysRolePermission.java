@@ -8,13 +8,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import com.github.zxs1994.java_template.common.BaseEntity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 /**
  * <p>
  * 系统--角色-权限关联表 实体
  * </p>
  *
  * @author xusheng
- * @since 2026-01-13 12:27:23
+ * @since 2026-01-22 19:50:06
  */
 
 @Data
@@ -23,9 +26,17 @@ import com.github.zxs1994.java_template.common.BaseEntity;
 @Schema(description = "系统--角色-权限关联表")
 public class SysRolePermission extends BaseEntity {
 
+    @TableId(type = IdType.AUTO)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "主键", example = "8088")
+    private Long id;
+
+    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "角色ID", example = "8088")
     private Long roleId;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "权限ID", example = "8088")
     private Long permissionId;
 

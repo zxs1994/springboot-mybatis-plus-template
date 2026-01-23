@@ -31,19 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtils.resolveToken(request);
 
-            if (token != null && jwtUtils.validateToken(token)) {
-                Long sysUserId = jwtUtils.getSysUserIdFromToken(token);
-                Integer tokenVersion = jwtUtils.getTokenVersion(token);
+        if (token != null && jwtUtils.validateToken(token)) {
+            Long sysUserId = jwtUtils.getSysUserIdFromToken(token);
+            Integer tokenVersion = jwtUtils.getTokenVersion(token);
+            SysUser sysUser = sysUserMapper.selectById(sysUserId);
 
-                SysUser sysUser = sysUserMapper.selectById(sysUserId);
-                log.info("sysUserId = {}", sysUserId);
-                if (tokenVersion.equals(sysUser.getTokenVersion())) {  // 单点登录
-                    UsernamePasswordAuthenticationToken auth = jwtUtils.getAuthentication(token);
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-
+            log.info("sysUserId = {}", sysUserId);
+            if (sysUser != null && sysUser.getStatus() && tokenVersion.equals(sysUser.getTokenVersion())) {  // 单点登录
+                UsernamePasswordAuthenticationToken auth = jwtUtils.getAuthentication(token);
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
+
+        }
 
 
         // ⚠️ 无论有没有 token，都要继续往下走

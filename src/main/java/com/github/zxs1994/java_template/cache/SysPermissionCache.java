@@ -1,7 +1,9 @@
 package com.github.zxs1994.java_template.cache;
 
 import com.github.zxs1994.java_template.entity.SysPermission;
+import com.github.zxs1994.java_template.enums.AuthLevel;
 import com.github.zxs1994.java_template.mapper.SysPermissionMapper;
+import com.github.zxs1994.java_template.util.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +28,36 @@ public class SysPermissionCache {
      */
     public List<SysPermission> listAll() {
         return allPermissions;
+    }
+
+    /**
+     * 获取【当前用户可见的】权限列表
+     * - 用于列表 / 下拉 / 展示
+     * - 租户用户自动过滤 platform-only 权限
+     */
+    public List<SysPermission> listVisiblePermissionsForCurrentUser() {
+        return allPermissions.stream()
+                .filter(p -> {
+                    AuthLevel level = AuthLevel.fromCode(p.getAuthLevel());
+                    return !level.platformOnly() || CurrentUser.isPlatformUser();
+                })
+                .toList();
+    }
+
+    /**
+     * 获取【用于权限树的】权限列表（可分配）
+     * - 仅返回参与权限校验的权限
+     * - 租户用户自动过滤 platform-only 权限
+     *
+     * 用于：角色配置 / 权限树
+     */
+    public List<SysPermission> listAssignablePermissionsForCurrentUser() {
+        return allPermissions.stream()
+                .filter(p -> {
+                    AuthLevel level = AuthLevel.fromCode(p.getAuthLevel());
+                    return level.needPermissionCheck()
+                            && (!level.platformOnly() || CurrentUser.isPlatformUser());
+                })
+                .toList();
     }
 }

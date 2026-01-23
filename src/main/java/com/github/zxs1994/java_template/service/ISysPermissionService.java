@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface ISysPermissionService extends IService<SysPermission> {
 
-    List<SysPermissionTreeNode> getPermissionTree();
+    List<SysPermissionTreeNode> getTree();
 
     List<String> getCodesByUserId(Long userId);
 }

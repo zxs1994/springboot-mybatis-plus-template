@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * <p>
- * 系统--用户表 实体
+ * 系统--组织部门表 实体
  * </p>
  *
  * @author xusheng
@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys__user")
-@Schema(description = "系统--用户表")
-public class SysUser extends BaseEntity {
+@TableName("sys__dept")
+@Schema(description = "系统--组织部门表")
+public class SysDept extends BaseEntity {
 
     @TableId(type = IdType.ASSIGN_ID)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -33,34 +33,29 @@ public class SysUser extends BaseEntity {
     private Long id;
 
     @JsonSerialize(using = ToStringSerializer.class)
-    @Schema(description = "所属部门ID", example = "8088")
-    private Long deptId;
+    @Schema(description = "父部门ID", example = "8088")
+    private Long parentId;
 
     @JsonIgnore
     @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "租户 / 公司ID（SaaS隔离）", example = "8088")
     private Long tenantId;
 
-    @Schema(description = "邮箱")
-    private String email;
-
-    @Schema(description = "用户名")
+    @Schema(description = "部门名称")
     private String name;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Schema(description = "密码")
-    private String password;
+    @Schema(description = "部门编码")
+    private String code;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Schema(description = "token版本")
-    private Integer tokenVersion;
+    @Schema(description = "层级路径，如 /1/3/8")
+    private String path;
 
     @Schema(description = "排序")
     private Integer sort;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Schema(description = "数据来源：SYSTEM=系统内置，USER=用户创建")
-    private String source;
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "负责人用户ID", example = "8088")
+    private Long leaderId;
 
     @Schema(description = "状态：1=启用，0=停用")
     private Boolean status;

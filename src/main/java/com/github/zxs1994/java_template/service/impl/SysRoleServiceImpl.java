@@ -3,18 +3,22 @@ package com.github.zxs1994.java_template.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.zxs1994.java_template.common.BaseEntity;
-import com.github.zxs1994.java_template.common.BasePage;
+import com.github.zxs1994.java_template.common.BaseQuery;
+import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.dto.SysRoleDto;
 import com.github.zxs1994.java_template.entity.SysPermission;
 import com.github.zxs1994.java_template.entity.SysRole;
 
 import com.github.zxs1994.java_template.entity.SysRolePermission;
+import com.github.zxs1994.java_template.enums.SourceType;
 import com.github.zxs1994.java_template.mapper.SysRoleMapper;
 import com.github.zxs1994.java_template.service.ISysPermissionService;
 import com.github.zxs1994.java_template.service.ISysRolePermissionService;
 import com.github.zxs1994.java_template.service.ISysRoleService;
-import com.github.zxs1994.java_template.common.SystemProtectService;
+import com.github.zxs1994.java_template.util.CurrentUser;
+import com.github.zxs1994.java_template.util.TenantQueryHelper;
 import com.github.zxs1994.java_template.vo.SysRoleVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -37,15 +41,57 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @Service
-public class SysRoleServiceImpl extends SystemProtectService<SysRoleMapper, SysRole> implements ISysRoleService {
+public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements ISysRoleService {
 
     private final ISysRolePermissionService sysRolePermissionService;
     private final ISysPermissionService sysPermissionService;
 
     @Override
-    public Page<SysRoleVo> page(BasePage query) {
+    public List<SysRole> list() {
+
+        QueryWrapper<SysRole> qw = new QueryWrapper<>();
+        TenantQueryHelper.tenantOrSystem(qw);
+
+        return super.list(qw);
+    }
+
+    @Override
+    @Transactional
+    public boolean removeById(Long id) {
+        SysRole sysRole;
+        try {
+            sysRole = getById(id); // 已做租户 + 存在性校验
+        } catch (BizException e) {
+            throw new BizException(403, "角色不属于当前租户!");
+        }
+
+        if (SourceType.SYSTEM.getCode().equals(sysRole.getSource())) {
+            throw new BizException(403, "系统内置角色不能删除!");
+        }
+
+        return super.removeById(id);
+    }
+
+    @Override
+    public SysRole getById(Long id) {
+        QueryWrapper<SysRole> qw = new QueryWrapper<>();
+        qw.eq("id", id);
+        TenantQueryHelper.tenantOnly(qw);
+
+        SysRole sysRole = super.getOne(qw);
+        if (sysRole == null) {
+            throw new BizException(404, "角色未找到");
+        }
+        return sysRole;
+    }
+
+    @Override
+    public Page<SysRoleVo> page(BaseQuery query) {
         // 1️⃣ 分页查询角色
         QueryWrapper<SysRole> qw = new QueryWrapper<>();
+
+        TenantQueryHelper.tenantOrSystem(qw);
+
         if (StringUtils.hasText(query.getName())) {
             qw.like("name", query.getName());
         }
@@ -108,10 +154,6 @@ public class SysRoleServiceImpl extends SystemProtectService<SysRoleMapper, SysR
 
         // 8️⃣ 返回分页结果
         Page<SysRoleVo> voPage = new Page<>();
-//        voPage.setCurrent(rolePage.getCurrent());
-//        voPage.setSize(rolePage.getSize());
-//        voPage.setTotal(rolePage.getTotal());
-//        voPage.setRecords(roleVos);
 
         BeanUtils.copyProperties(rolePage, voPage, "records");
         voPage.setRecords(roleVos);
@@ -123,6 +165,19 @@ public class SysRoleServiceImpl extends SystemProtectService<SysRoleMapper, SysR
     @Override
     public boolean updateById(SysRoleDto dto) {
         Long roleId = dto.getId();
+
+        SysRole oldRole;
+
+        try {
+            oldRole = getById(roleId); // 已做租户 + 存在性校验
+        } catch (BizException e) {
+            throw new BizException(403, "角色不属于当前租户!");
+        }
+
+        if (SourceType.SYSTEM.getCode().equals(oldRole.getSource())) {
+            throw new BizException(403, "系统内置角色不能更新!");
+        }
+
         SysRole sysRole = new SysRole();
 
         BeanUtils.copyProperties(dto, sysRole);
@@ -146,6 +201,8 @@ public class SysRoleServiceImpl extends SystemProtectService<SysRoleMapper, SysR
         SysRole sysRole = new SysRole();
 
         BeanUtils.copyProperties(dto, sysRole);
+
+        sysRole.setTenantId(CurrentUser.getTenantId());
 
         super.save(sysRole);
 

@@ -1,6 +1,6 @@
 package com.github.zxs1994.java_template.controller;
 
-import com.github.zxs1994.java_template.common.BasePage;
+import com.github.zxs1994.java_template.common.BaseQuery;
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.dto.SysRoleDto;
 import com.github.zxs1994.java_template.entity.SysRole;
@@ -36,13 +36,13 @@ public class SysRoleController {
 
     @GetMapping("/page")
     @Operation(summary = "角色列表(分页)")
-    public Page<SysRoleVo> page(BasePage query) {
+    public Page<SysRoleVo> page(BaseQuery query) {
         return sysRoleService.page(query);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "获取角色")
-    public SysRole getById(@PathVariable Long id) {
+    public SysRole item(@PathVariable Long id) {
         SysRole sysRole = sysRoleService.getById(id);
         if (sysRole == null) {
             throw new BizException(404, "角色未找到");
@@ -52,7 +52,7 @@ public class SysRoleController {
 
     @PostMapping
     @Operation(summary = "新增角色")
-    public Long save(@RequestBody SysRoleDto dto) {
+    public Long add(@RequestBody SysRoleDto dto) {
 
         Long id = sysRoleService.save(dto);
         if (id == null) {
@@ -63,7 +63,7 @@ public class SysRoleController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新角色")
-    public void updateById(@PathVariable Long id, @RequestBody SysRoleDto dto) {
+    public void update(@PathVariable Long id, @RequestBody SysRoleDto dto) {
         dto.setId(id);
         boolean success = sysRoleService.updateById(dto);
         if (!success) {
@@ -73,7 +73,7 @@ public class SysRoleController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除角色")
-    public void removeById(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         boolean success = sysRoleService.removeById(id);
         if (!success) {
             throw new BizException(400, "删除角色失败");
@@ -89,6 +89,6 @@ public class SysRoleController {
     @GetMapping("/permission-tree")
     @Operation(summary = "权限树形数据")
     public List<SysPermissionTreeNode> permissionTree() {
-        return sysPermissionService.getPermissionTree();
+        return sysPermissionService.getTree();
     }
 }

@@ -59,8 +59,8 @@ public class ${entity}Controller {
     @GetMapping("/page")
     @Operation(summary = "${entityShortComment}列表(分页)")
     public Page<${entity}> page(@RequestParam(defaultValue = "1") long page,
-                                 @RequestParam(defaultValue = "10") long size,
-                                 <#if hasNameField>@RequestParam(required = false) String name</#if>) {
+                                @RequestParam(defaultValue = "10") long size<#if hasNameField>,</#if>
+                                <#if hasNameField>@RequestParam(required = false) String name</#if>) {
         <#if hasNameField>
         QueryWrapper<${entity}> qw = new QueryWrapper<>();
         if (StringUtils.hasText(name)) {
@@ -74,7 +74,7 @@ public class ${entity}Controller {
 
     @GetMapping("/{id}")
     @Operation(summary = "获取${entityShortComment}")
-    public ${entity} getById(@PathVariable Long id) {
+    public ${entity} item(@PathVariable Long id) {
         ${entity} ${entityLower} = ${entityLower}Service.getById(id);
         if (${entityLower} == null) {
             throw new BizException(404, "${entityShortComment}未找到");
@@ -84,7 +84,7 @@ public class ${entity}Controller {
 
     @PostMapping
     @Operation(summary = "新增${entityShortComment}")
-    public Long save(@RequestBody ${entity} ${entityLower}) {
+    public Long add(@RequestBody ${entity} ${entityLower}) {
         boolean success = ${entityLower}Service.save(${entityLower});
         if (!success) {
             throw new BizException(400, "新增${entityShortComment}失败");
@@ -94,7 +94,7 @@ public class ${entity}Controller {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新${entityShortComment}")
-    public void updateById(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
+    public void update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
         ${entityLower}.setId(id);
         boolean success = ${entityLower}Service.updateById(${entityLower});
         if (!success) {
@@ -104,7 +104,7 @@ public class ${entity}Controller {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除${entityShortComment}")
-    public void removeById(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         boolean success = ${entityLower}Service.removeById(id);
         if (!success) {
             throw new BizException(400, "删除${entityShortComment}失败");

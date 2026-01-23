@@ -14,4 +14,8 @@ public class SysUserVo extends SysUserDto {
 
     @Schema(description = "角色 list")
     private List<SysRole> roles;
+
+    @Schema(description = "部门名称")
+    private String deptName;
+
 }

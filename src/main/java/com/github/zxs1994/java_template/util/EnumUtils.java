@@ -31,8 +31,13 @@ public class EnumUtils {
                         BaseEnum<?> base = (BaseEnum<?>) e;
                         Map<String, Object> map = new HashMap<>();
                         map.put("code", base.getCode());
-                        map.put("name", base.getName());
                         map.put("desc", base.getDesc());
+
+                        String color = base.getColor();
+                        if (color != null) {
+                            map.put("color", color);
+                        }
+
                         list.add(map);
                     }
 

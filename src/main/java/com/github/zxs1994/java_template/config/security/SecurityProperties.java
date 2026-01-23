@@ -24,4 +24,9 @@ public class SecurityProperties {
      */
     private List<String> loginOnlyUrls = new ArrayList<>();
 
+    /**
+     * 仅平台用户可访问
+     */
+    private List<String> platformOnlyUrls = new ArrayList<>();
+
 }

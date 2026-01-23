@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "分页基础参数")
-public class BasePage {
+public class BaseQuery {
 
     @Schema(description = "页码（从 1 开始）", example = "1")
     private long page = 1;

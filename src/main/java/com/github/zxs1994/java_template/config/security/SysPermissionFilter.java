@@ -41,21 +41,26 @@ public class SysPermissionFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 2️⃣ 需要登录（LOGIN_ONLY + NORMAL 都要）
+        // 2️⃣ 需要登录（LOGIN_ONLY / NORMAL / PLATFORM_ONLY）
         if (!CurrentUser.isLogin()) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        // 3️⃣ 登录即可
+        // 3️⃣ 平台专属接口：仅平台用户可访问
+        if (authLevel == AuthLevel.PLATFORM_ONLY && !CurrentUser.isPlatformUser()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        // 4️⃣ 登录即可
         if (authLevel == AuthLevel.LOGIN_ONLY) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Long userId = CurrentUser.getId();
-
-        // 4️⃣ NORMAL：需要权限校验
+        // 5️⃣ NORMAL：需要权限校验
+        Long userId = CurrentUser.getUserId();
         List<SysPermission> userPermissions = sysPermissionMapper.selectByUserId(userId);
 
         SysPermission matched = userPermissions.stream()

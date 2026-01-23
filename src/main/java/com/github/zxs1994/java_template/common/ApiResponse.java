@@ -84,7 +84,7 @@ public class ApiResponse<T> {
 
     private static String getMsgByStatus(int status) {
         return switch (status) {
-            case 401 -> "未登录或 Token 无效";
+            case 401 -> "请重新登录";
             case 403 -> "没有权限";
             default -> "请求失败";
         };

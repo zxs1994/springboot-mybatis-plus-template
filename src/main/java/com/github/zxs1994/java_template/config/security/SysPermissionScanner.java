@@ -59,7 +59,7 @@ public class SysPermissionScanner {
         // 扫描前统一标记为已删除
         sysPermissionMapper.update(
                 null,
-                new UpdateWrapper<SysPermission>().set("del", 1)
+                new UpdateWrapper<SysPermission>().set("status", 0)
         );
 
         // 初始化权限, 只会插入一次
@@ -210,7 +210,7 @@ public class SysPermissionScanner {
         p.setModuleName(moduleName);
         p.setAuthLevel(level.getCode());
         p.setParentId(parentId);
-        p.setDel(false);
+        p.setStatus(true);
 
         if (p.getId() != null) {
             sysPermissionMapper.updateById(p);

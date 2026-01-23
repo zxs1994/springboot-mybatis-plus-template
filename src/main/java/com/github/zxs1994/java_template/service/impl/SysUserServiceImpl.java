@@ -4,20 +4,25 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.zxs1994.java_template.common.BasePage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.zxs1994.java_template.common.BaseQuery;
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.dto.LoginDto;
 import com.github.zxs1994.java_template.dto.SysUserDto;
+import com.github.zxs1994.java_template.entity.SysDept;
 import com.github.zxs1994.java_template.entity.SysRole;
 import com.github.zxs1994.java_template.entity.SysUserRole;
+import com.github.zxs1994.java_template.enums.SourceType;
+import com.github.zxs1994.java_template.mapper.SysDeptMapper;
+import com.github.zxs1994.java_template.service.ISysDeptService;
 import com.github.zxs1994.java_template.service.ISysUserRoleService;
 import com.github.zxs1994.java_template.util.CurrentUser;
+import com.github.zxs1994.java_template.util.TenantQueryHelper;
 import com.github.zxs1994.java_template.vo.LoginVo;
 import com.github.zxs1994.java_template.entity.SysUser;
 import com.github.zxs1994.java_template.mapper.SysUserMapper;
 import com.github.zxs1994.java_template.service.ISysUserService;
 import com.github.zxs1994.java_template.config.security.jwt.JwtUtils;
-import com.github.zxs1994.java_template.common.SystemProtectService;
 import com.github.zxs1994.java_template.vo.SysUserVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -26,10 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -42,15 +45,55 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @Service
-public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysUser> implements ISysUserService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final ISysUserRoleService sysUserRoleService;
+    private final SysDeptMapper sysDeptMapper;
+
+    @Override
+    public List<SysUser> list() {
+
+        QueryWrapper<SysUser> qw = new QueryWrapper<>();
+        qw.orderByAsc("sort");
+        TenantQueryHelper.tenantOnly(qw);
+
+        return super.list(qw);
+    }
+
+    @Override
+    public boolean removeById(Long id) {
+        SysUser sysUser;
+        try {
+            sysUser = getById(id);
+        } catch (BizException e) {
+            throw new BizException(403, "用户不属于当前租户!");
+        }
+        if (sysUser.getSource().equals(SourceType.SYSTEM.getCode())) {
+            throw new BizException(403, "系统内置用户不能删除!");
+        }
+        super.removeById(id);
+        return true;
+    }
+
+    @Override
+    public SysUser getById(Long id) {
+        QueryWrapper<SysUser> qw = new QueryWrapper<>();
+        qw.eq("id", id);
+
+        TenantQueryHelper.tenantOnly(qw);
+
+        SysUser sysUser = super.getOne(qw);
+        if (sysUser == null) {
+            throw new BizException(404, "用户未找到");
+        }
+        return sysUser;
+    }
 
     @Override
     public void logout() {
-        Long userId = CurrentUser.getId();
+        Long userId = CurrentUser.getUserId();
         increaseTokenVersion(userId);
     }
 
@@ -59,9 +102,12 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
         wrapper.eq("email", req.getEmail());
         SysUser sysUser = getOne(wrapper, false);
-        if(sysUser == null || !passwordEncoder.matches(req.getPassword(), sysUser.getPassword())) {
+        if (sysUser == null || !passwordEncoder.matches(req.getPassword(), sysUser.getPassword())) {
             // 登录失败，抛业务异常
             throw new BizException(400, "邮箱或密码错误");
+        }
+        if (!sysUser.getStatus()) {
+            throw new BizException(400, "当前用户已被禁用，请联系管理员");
         }
         // 登录成功后
 
@@ -90,6 +136,10 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
 
         sysUser.setPassword(passwordEncoder.encode(sysUser.getPassword()));
 
+        if (dto.getTenantId() == null) { // 为了平台创建租户管理员
+            sysUser.setTenantId(CurrentUser.getTenantId());
+        }
+
         super.save(sysUser);
 
         Long userId = sysUser.getId();
@@ -101,6 +151,7 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
     }
 
     @Transactional
+    @Override
     public boolean updateById(SysUserDto dto) {
         Long userId = dto.getId();
 
@@ -109,15 +160,20 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
         BeanUtils.copyProperties(dto, user);
         updateById(user);
 
-        // 2️⃣ 删除旧角色关联
-        sysUserRoleService.remove(
-                new LambdaQueryWrapper<SysUserRole>()
-                        .eq(SysUserRole::getUserId, userId)
-        );
+        SysUser newUser = getById(userId);
 
-        // 3️⃣ 新增新角色关联
-        List<Long> roleIds = dto.getRoleIds();
-        saveUserRoles(userId, roleIds);
+        // 不是系统创建的用户才能修改角色
+        if (!newUser.getSource().equals(SourceType.SYSTEM.getCode())) {
+            // 2️⃣ 删除旧角色关联
+            sysUserRoleService.remove(
+                    new LambdaQueryWrapper<SysUserRole>()
+                            .eq(SysUserRole::getUserId, userId)
+            );
+
+            // 3️⃣ 新增新角色关联
+            List<Long> roleIds = dto.getRoleIds();
+            saveUserRoles(userId, roleIds);
+        }
 
         return true;
     }
@@ -125,6 +181,20 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
     @Override
     public boolean updateById(SysUser sysUser) {
         String email = sysUser.getEmail();
+
+        SysUser oldUser;
+        try {
+            oldUser = getById(sysUser.getId());
+        } catch (BizException e) {
+            throw new BizException(403, "用户不属于当前租户!");
+        }
+
+        // 用户创建的用户不能改系统创建的用户
+        if (oldUser.getSource().equals(SourceType.SYSTEM.getCode()) ) {
+            if (!CurrentUser.isSystemUser()) {
+                throw new BizException(403, "无权修改!");
+            }
+        }
 
         // 1️⃣ 校验 email
         if (email != null) {
@@ -144,10 +214,16 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
     }
 
     @Override
-    public Page<SysUserVo> page(BasePage query){
+    public Page<SysUserVo> page(BaseQuery query){
+
+        QueryWrapper<SysUser> qw = new QueryWrapper<>();
+        qw.orderByAsc("sort");
+        TenantQueryHelper.tenantOnly(qw);
+
+        qw.like(StringUtils.hasText(query.getName()), "name", query.getName());
+
         // 1️⃣ 查询用户分页
-        Page<SysUser> userPage = super.page(new Page<>(query.getPage(), query.getSize()),
-                new QueryWrapper<SysUser>().like(StringUtils.hasText(query.getName()), "name", query.getName()));
+        Page<SysUser> userPage = super.page(new Page<>(query.getPage(), query.getSize()), qw);
 
         List<Long> userIds = userPage.getRecords().stream()
                 .map(SysUser::getId)
@@ -161,7 +237,21 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
             userRolesMap = new HashMap<>();
         }
 
-        // 3️⃣ 组装 DTO
+        // 3️⃣ 查询部门（批量）
+        Map<Long, SysDept> deptMap;
+        if (!userIds.isEmpty()) {
+            List<Long> deptIds = userPage.getRecords().stream()
+                    .map(SysUser::getDeptId)
+                    .filter(Objects::nonNull)
+                    .distinct() // ⭐ 去重
+                    .toList();
+            deptMap = sysDeptMapper.selectBatchIds(deptIds).stream()
+                    .collect(Collectors.toMap(SysDept::getId, Function.identity()));
+        } else {
+            deptMap = new HashMap<>();
+        }
+
+        // 4️⃣ 组装 DTO
         List<SysUserVo> voList = userPage.getRecords().stream().map(u -> {
             SysUserVo vo = new SysUserVo();
             BeanUtils.copyProperties(u, vo);
@@ -175,6 +265,11 @@ public class SysUserServiceImpl extends SystemProtectService<SysUserMapper, SysU
                             .map(SysRole::getId)
                             .collect(Collectors.toList())
             );
+
+            SysDept dept = deptMap.get(vo.getDeptId());
+            if (dept != null) {
+                vo.setDeptName(dept.getName());
+            }
 
             return vo;
         }).collect(Collectors.toList());

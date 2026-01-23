@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 
 @Data
 public class BaseEntity {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "主键", example = "8088")
     private Long id;

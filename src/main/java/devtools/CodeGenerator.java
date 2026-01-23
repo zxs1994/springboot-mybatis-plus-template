@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class CodeGenerator {
 
@@ -38,19 +41,37 @@ public class CodeGenerator {
 //                            .xml("mapper.xml")
                 )
                 .strategyConfig(builder -> builder
-                         .addInclude(tableName)
+//                         .addInclude(tableName)
 
                         .entityBuilder()
                             .enableTableFieldAnnotation() // ✅ 强烈推荐
-                            .addIgnoreColumns("id", "created_at", "updated_at")
+                            .addIgnoreColumns("created_at", "updated_at")
                             .logicDeleteColumnName("deleted")
                             .enableFileOverride() // 覆盖生成的文件
 
                 )
                 .templateEngine(new FreemarkerTemplateEngine())
-                .injectionConfig(builder -> builder
-                        .customMap(Collections.singletonMap("basePackage", basePackage)) // 传给模板
-                )
+                .injectionConfig(builder -> {
+                    Map<String, Object> customMap = new HashMap<>();
+
+                    customMap.put("basePackage", basePackage);
+
+                    // 只读字段（模板里统一处理）
+                    customMap.put("readOnlyFields", Set.of(
+                            "id",
+                            "source",
+                            "token_version"
+                    ));
+
+                    // 使用自增ID的表（模板里统一处理）
+                    customMap.put("autoIdTables", Set.of(
+                            "sys__permission",
+                            "sys__user_role",
+                            "sys__role_permission"
+                    ));
+
+                    builder.customMap(customMap);
+                })
                 .execute();
 
     }

@@ -13,6 +13,10 @@ logging:
       springframework:
         web: DEBUG
 
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 # Swagger 配置
 springdoc:
   swagger-ui:

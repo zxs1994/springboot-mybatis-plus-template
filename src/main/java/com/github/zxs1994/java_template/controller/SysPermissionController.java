@@ -46,7 +46,7 @@ public class SysPermissionController {
 
 //    @GetMapping("/{id}")
 //    @Operation(summary = "获取权限")
-//    public SysPermission getById(@PathVariable Long id) {
+//    public SysPermission item(@PathVariable Long id) {
 //        SysPermission sysPermission = sysPermissionService.getById(id);
 //        if (sysPermission == null) {
 //            throw new BizException(404, "权限未找到");
@@ -60,7 +60,7 @@ public class SysPermissionController {
 //        return sysPermissionService.list();
 //    }
 
-//    @GetMapping("tree")
+//    @GetMapping("/tree")
 //    @Operation(summary = "权限树形数据")
 //    public List<SysPermissionTreeNode> tree() {
 //        return sysPermissionService.getPermissionTree();

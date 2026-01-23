@@ -1,9 +1,11 @@
 package com.github.zxs1994.java_template.config.security.jwt;
 
+import com.github.zxs1994.java_template.config.security.LoginUser;
 import com.github.zxs1994.java_template.entity.SysUser;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +35,9 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject(sysUser.getEmail())
                 .claim("id", sysUser.getId())             // 用户 ID
+                .claim("tenantId", sysUser.getTenantId())     // ⭐ 租户ID
                 .claim("tokenVersion", sysUser.getTokenVersion())
+                .claim("source", sysUser.getSource())
                 .setIssuedAt(new Date(now))      // 签发时间
                 .setExpiration(new Date(now + jwtProperties.getExpireMillis())) // 过期时间
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -52,6 +56,20 @@ public class JwtUtils {
      */
     public Long getSysUserIdFromToken(String token) {
         return parseToken(token).getBody().get("id", Long.class);
+    }
+
+    /**
+     * 获取租户 ID
+     */
+    public Long getTenantIdFromToken(String token) {
+        return parseToken(token).getBody().get("tenantId", Long.class);
+    }
+
+    /**
+     * 获取用户 source
+     */
+    public String getSourceFromToken(String token) {
+        return parseToken(token).getBody().get("source", String.class);
     }
 
     /**
@@ -98,8 +116,19 @@ public class JwtUtils {
      * 根据 token 获取 Authentication 对象
      */
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
-        Long sysUserId = getSysUserIdFromToken(token);
-        return new UsernamePasswordAuthenticationToken(sysUserId, null, Collections.emptyList());
+        LoginUser loginUser = new LoginUser(
+                getSysUserIdFromToken(token),
+                getTenantIdFromToken(token),
+                getSubjectFromToken(token),
+                getSourceFromToken(token),
+                getTokenVersion(token)
+        );
+
+        return new UsernamePasswordAuthenticationToken(
+                loginUser,
+                null,
+                Collections.emptyList()
+        );
     }
 
 }

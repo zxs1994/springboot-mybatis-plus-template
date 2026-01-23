@@ -23,6 +23,9 @@ security:
       - /sys/user/info
       - /sys/profile
       - /sys/password
+    platform-only-urls:
+      - /platform/**
+      - /sys/permission/**
 
 # JWT 配置
 #  本项目使用 HS256 算法生成 JWT，
