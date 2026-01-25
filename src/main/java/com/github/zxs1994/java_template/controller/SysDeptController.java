@@ -1,8 +1,8 @@
 package com.github.zxs1994.java_template.controller;
 
-import com.github.zxs1994.java_template.common.BaseQuery;
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.entity.SysDept;
+import com.github.zxs1994.java_template.query.SysDeptQuery;
 import com.github.zxs1994.java_template.service.ISysDeptService;
 import com.github.zxs1994.java_template.vo.SysDeptTreeNode;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,7 @@ public class SysDeptController {
 
     @GetMapping("/page")
     @Operation(summary = "组织部门列表(分页)")
-    public Page<SysDept> page(BaseQuery query) {
+    public Page<SysDept> page(SysDeptQuery query) {
         return sysDeptService.page(query);
     }
 

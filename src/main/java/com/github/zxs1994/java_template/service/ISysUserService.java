@@ -1,9 +1,9 @@
 package com.github.zxs1994.java_template.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.zxs1994.java_template.common.BaseQuery;
 import com.github.zxs1994.java_template.dto.LoginDto;
 import com.github.zxs1994.java_template.dto.SysUserDto;
+import com.github.zxs1994.java_template.query.SysUserQuery;
 import com.github.zxs1994.java_template.vo.LoginVo;
 import com.github.zxs1994.java_template.entity.SysUser;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -26,7 +26,7 @@ public interface ISysUserService extends IService<SysUser> {
 
     boolean updateById(SysUserDto sysUserDto);
 
-    Page<SysUserVo> page(BaseQuery query);
+    Page<SysUserVo> page(SysUserQuery query);
 
     boolean removeById(Long id);
 

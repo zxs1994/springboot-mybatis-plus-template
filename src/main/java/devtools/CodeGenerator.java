@@ -1,6 +1,7 @@
 package devtools;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
+import com.baomidou.mybatisplus.generator.config.builder.CustomFile;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 
@@ -26,7 +27,7 @@ public class CodeGenerator {
 //        System.out.println("数据库 密码: " + password);
 //        System.out.println("项目基础包: " + basePackage);
 
-        String tableName = "sys__user_role";
+        String tableName = "test_table";
 
         FastAutoGenerator.create(url, username, password)
                 .globalConfig(builder -> builder
@@ -55,14 +56,33 @@ public class CodeGenerator {
 
                 )
                 .templateEngine(new FreemarkerTemplateEngine())
-                .injectionConfig(builder -> {
+                .injectionConfig(injectConfig -> {
                     Map<String, Object> customMap = new HashMap<>();
 
                     customMap.put("basePackage", basePackage);
                     customMap.put("readOnlyFields", GeneratorConfig.readOnlyFields);
                     customMap.put("autoIdTables", GeneratorConfig.autoIdTables);
+                    customMap.put("queryConfig", GeneratorConfig.queryConfig);
 
-                    builder.customMap(customMap);
+                    injectConfig.customMap(customMap);
+
+                    injectConfig.customFile(new CustomFile.Builder()
+                            .fileName("Dto.java")
+                            .templatePath("templates/dto.java.ftl")
+                            .packageName("dto")
+                            .build());
+
+                    injectConfig.customFile(new CustomFile.Builder()
+                            .fileName("Vo.java")
+                            .templatePath("templates/vo.java.ftl")
+                            .packageName("vo")
+                            .build());
+
+                    injectConfig.customFile(new CustomFile.Builder()
+                            .fileName("Query.java")
+                            .templatePath("templates/query.java.ftl")
+                            .packageName("query")
+                            .build());
                 })
                 .execute();
 
@@ -70,27 +90,52 @@ public class CodeGenerator {
 
     }
 
+    /**
+     * 由于生成器不能按条件生成，所以使用生成后再删除的方法
+     * @param outputDir 文件夹
+     * @param basePackage 基础包
+     * @throws IOException IO异常
+     */
     private static void deleteNoControllerFiles(
             String outputDir,
             String basePackage
     ) throws IOException {
 
-        String controllerPath = outputDir
-                + "/"
-                + basePackage.replace(".", "/")
-                + "/controller";
+        String controllerPath = outputDir + "/" + basePackage.replace(".", "/") + "/controller";
+        String dtoPath = outputDir + "/" + basePackage.replace(".", "/") + "/dto";
+        String voPath = outputDir + "/" + basePackage.replace(".", "/") + "/vo";
+        String queryPath = outputDir + "/" + basePackage.replace(".", "/") + "/query";
+
 
         for (String table : GeneratorConfig.noControllerTables) {
-            String entityName =
-                    NamingStrategy.capitalFirst(
-                            NamingStrategy.underlineToCamel(table)
-                    );
-            String controllerFile = controllerPath + "/" + entityName + "Controller.java";
+            String entityName = NamingStrategy.capitalFirst(NamingStrategy.underlineToCamel(table));
 
-            Path path = Paths.get(controllerFile);
-            if (Files.exists(path)) {
-                Files.delete(path);
-                System.out.println("🗑 已删除 Controller: " + path.getFileName());
+            // 删除 Controller
+            Path controllerFile = Paths.get(controllerPath + "/" + entityName + "Controller.java");
+            if (Files.exists(controllerFile)) {
+                Files.delete(controllerFile);
+                System.out.println("🗑 已删除 Controller: " + controllerFile.getFileName());
+            }
+
+            // 删除 DTO
+            Path dtoFile = Paths.get(dtoPath + "/" + entityName + "Dto.java");
+            if (Files.exists(dtoFile)) {
+                Files.delete(dtoFile);
+                System.out.println("🗑 已删除 DTO: " + dtoFile.getFileName());
+            }
+
+            // 删除 VO
+            Path voFile = Paths.get(voPath + "/" + entityName + "Vo.java");
+            if (Files.exists(voFile)) {
+                Files.delete(voFile);
+                System.out.println("🗑 已删除 VO: " + voFile.getFileName());
+            }
+
+            // 删除 VO
+            Path queryFile = Paths.get(queryPath + "/" + entityName + "Query.java");
+            if (Files.exists(queryFile)) {
+                Files.delete(queryFile);
+                System.out.println("🗑 已删除 Query: " + queryFile.getFileName());
             }
         }
     }

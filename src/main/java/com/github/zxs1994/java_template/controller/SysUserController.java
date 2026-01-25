@@ -1,12 +1,12 @@
 package com.github.zxs1994.java_template.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.zxs1994.java_template.common.BaseQuery;
 import com.github.zxs1994.java_template.common.BizException;
 import com.github.zxs1994.java_template.dto.SysUserDto;
 import com.github.zxs1994.java_template.dto.UserInfoDto;
 import com.github.zxs1994.java_template.entity.SysUser;
 import com.github.zxs1994.java_template.mapper.SysUserMapper;
+import com.github.zxs1994.java_template.query.SysUserQuery;
 import com.github.zxs1994.java_template.service.ISysPermissionService;
 import com.github.zxs1994.java_template.service.ISysUserService;
 import com.github.zxs1994.java_template.util.CurrentUser;
@@ -41,7 +41,7 @@ public class SysUserController {
 
     @GetMapping("/page")
     @Operation(summary = "用户列表(分页)")
-    public Page<SysUserVo> page(BaseQuery query) {
+    public Page<SysUserVo> page(SysUserQuery query) {
         return sysUserService.page(query);
     }
 

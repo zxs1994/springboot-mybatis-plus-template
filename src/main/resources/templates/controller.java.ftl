@@ -15,26 +15,18 @@
 <#-- 短的表名 -->
 <#assign commentParts = entityComment?split("--")>
 <#assign entityShortComment = commentParts[commentParts?size - 1]>
-<#-- 是否存在 name 字段 -->
-<#assign hasNameField = false>
-<#list table.fields as field>
-    <#if field.name == "name">
-        <#assign hasNameField = true>
-    </#if>
-</#list>
-package ${basePackage}.controller;
+package ${package.Controller};
 
 import ${basePackage}.common.BizException;
-import ${basePackage}.entity.${entity};
-import ${basePackage}.service.I${entity}Service;
+import ${package.Entity}.${entity};
+import ${package.Service}.I${entity}Service;
+import ${package.Query}.${entity}Query;
+import ${package.Dto}.${entity}Dto;
+import ${package.Vo}.${entity}Vo;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.util.List;
-<#if hasNameField>
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.springframework.util.StringUtils;
-</#if>
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,45 +50,35 @@ public class ${entity}Controller {
 
     @GetMapping("/page")
     @Operation(summary = "${entityShortComment}列表(分页)")
-    public Page<${entity}> page(@RequestParam(defaultValue = "1") long page,
-                                @RequestParam(defaultValue = "10") long size<#if hasNameField>,</#if>
-                                <#if hasNameField>@RequestParam(required = false) String name</#if>) {
-        <#if hasNameField>
-        QueryWrapper<${entity}> qw = new QueryWrapper<>();
-        if (StringUtils.hasText(name)) {
-            qw.like("name", name);
-        }
-        return ${entityLower}Service.page(new Page<>(page, size), qw);
-        <#else>
-        return ${entityLower}Service.page(new Page<>(page, size));
-        </#if>
+    public Page<${entity}Vo> page(${entity}Query query) {
+        return ${entityLower}Service.page(query);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "获取${entityShortComment}")
-    public ${entity} item(@PathVariable Long id) {
-        ${entity} ${entityLower} = ${entityLower}Service.getById(id);
-        if (${entityLower} == null) {
+    public ${entity}Vo item(@PathVariable Long id) {
+        ${entity}Vo vo = ${entityLower}Service.getVoById(id);
+        if (vo == null) {
             throw new BizException(404, "${entityShortComment}未找到");
         }
-        return ${entityLower};
+        return vo;
     }
 
     @PostMapping
     @Operation(summary = "新增${entityShortComment}")
-    public Long add(@RequestBody ${entity} ${entityLower}) {
-        boolean success = ${entityLower}Service.save(${entityLower});
+    public Long add(@RequestBody ${entity}Dto dto) {
+        boolean success = ${entityLower}Service.save(dto);
         if (!success) {
             throw new BizException(400, "新增${entityShortComment}失败");
         }
-        return ${entityLower}.getId();
+        return dto.getId();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新${entityShortComment}")
-    public void update(@PathVariable Long id, @RequestBody ${entity} ${entityLower}) {
-        ${entityLower}.setId(id);
-        boolean success = ${entityLower}Service.updateById(${entityLower});
+    public void update(@PathVariable Long id, @RequestBody ${entity}Dto dto) {
+        dto.setId(id);
+        boolean success = ${entityLower}Service.updateById(dto);
         if (!success) {
             throw new BizException(400, "更新${entityShortComment}失败");
         }

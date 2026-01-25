@@ -14,6 +14,7 @@ import com.github.zxs1994.java_template.entity.SysRole;
 import com.github.zxs1994.java_template.entity.SysUserRole;
 import com.github.zxs1994.java_template.enums.SourceType;
 import com.github.zxs1994.java_template.mapper.SysDeptMapper;
+import com.github.zxs1994.java_template.query.SysUserQuery;
 import com.github.zxs1994.java_template.service.ISysDeptService;
 import com.github.zxs1994.java_template.service.ISysUserRoleService;
 import com.github.zxs1994.java_template.util.CurrentUser;
@@ -233,7 +234,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public Page<SysUserVo> page(BaseQuery query){
+    public Page<SysUserVo> page(SysUserQuery query){
 
         QueryWrapper<SysUser> qw = new QueryWrapper<>();
         qw.orderByAsc("sort");
