@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.github.zxs1994</groupId>
-    <artifactId>java_template</artifactId>
-    <name>JAVA后台管理系统模板</name>
-    <description>SpringBoot + MyBatis-Plus 模板项目（JWT + RBAC）</description>
+    <groupId>com.xusheng94</groupId>
+    <artifactId>leyu</artifactId>
+    <name>乐羽后台管理系统</name>
+    <description>Leyu（乐羽） —— 一个轻量、优雅的 Java 模板项目</description>
     <version>1.0.0</version>
 
     <properties>

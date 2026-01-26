@@ -1,6 +1,6 @@
 package ${package.Query};
 
-import com.github.zxs1994.java_template.common.BaseQuery;
+import common.com.xusheng94.leyu.BaseQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

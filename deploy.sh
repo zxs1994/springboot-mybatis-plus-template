@@ -30,8 +30,7 @@ fi
 echo "🚀 Starting new process..."
 # 设置 JVM 时区为东八区，确保应用内时间与数据库一致
 sudo nohup java -jar "$APP_NAME" \
-  --spring.profiles.active=prod \
-  > app.log 2>&1 &
+  --spring.profiles.active=prod
 
 echo "✅ Started $APP_NAME"
 echo "Done."

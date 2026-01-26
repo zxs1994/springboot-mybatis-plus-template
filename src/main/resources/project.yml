@@ -1,6 +1,6 @@
 # 由插件生成, 禁止手动修改project.yml, 使用complie生成
 project:
-  name: JAVA后台管理系统模板
-  description: SpringBoot + MyBatis-Plus 模板项目（JWT + RBAC）
-  base-package: com.github.zxs1994.java_template
+  name: 乐羽后台管理系统
+  description: Leyu（乐羽） —— 一个轻量、优雅的 Java 模板项目
+  base-package: com.xusheng94.leyu
   version: 1.0.0

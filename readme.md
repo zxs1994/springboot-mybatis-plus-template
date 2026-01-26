@@ -1,4 +1,4 @@
-# SpringBoot + MyBatis-Plus 用户管理系统模板 📦
+# Leyu（乐羽） 📦
 
 ## 简介 💡
 
@@ -123,7 +123,7 @@
 
 ## 主要特性 ✅
 
-- 基于 Spring Boot 3.5.5（Java 17）
+- 基于 Spring Boot 3.5.5（Java 21）
 - MyBatis-Plus 集成（分页、自动填充、代码生成）
 - JWT 登录鉴权，Spring Security 权限控制（RBAC）
 - 统一 API 响应封装（`ApiResponse`），可用 `@NoApiWrap` 跳过
@@ -136,7 +136,7 @@
 
 ## 技术栈与依赖分组 🔧
 
-- **Java 17**
+- **Java 21**
 - **Spring Boot 3.5.5**
    - Web 支持：`spring-boot-starter-web`
    - 安全框架：`spring-boot-starter-security`、`spring-security-crypto`
