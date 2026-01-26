@@ -1,7 +1,7 @@
 # 激活的环境
 spring:
   profiles:
-    active: test
+    active: dev
   config:
     import: classpath:project.yml
     encoding: UTF-8

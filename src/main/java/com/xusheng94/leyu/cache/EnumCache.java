@@ -22,7 +22,7 @@ public class EnumCache {
     @PostConstruct
     public void init() {
         this.enumCache = EnumUtils.loadAllEnums(
-                STR."\{projectProperties.getBasePackage()}.enums"
+                projectProperties.getBasePackage() + ".enums"
         );
         log.info("enum cache init success");
     }
