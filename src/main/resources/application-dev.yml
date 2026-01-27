@@ -7,10 +7,6 @@ spring:
     username: root
     password: ""
 
-#mybatis-plus:
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
 # Swagger 配置
 springdoc:
   swagger-ui:
@@ -40,8 +36,7 @@ springdoc:
     # 自定义配置：是否启用接口分组（GroupedOpenApi）
     # true  : 使用系统管理 / 业务接口等分组
     # false : 所有接口放在一个文档中
-    group-enabled: true
-
+    group-enabled: false
 
 # 权限扫描开关
 # true  ：启动时扫描 Controller 并同步权限到数据库（可能覆盖/恢复权限数据）
